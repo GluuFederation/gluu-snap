@@ -1,0 +1,2 @@
+#!/bin/bash -e
+snapctl stop --disable gluu-server.opendj

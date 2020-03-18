@@ -1,0 +1,163 @@
+name: gluu-server
+version: 1
+summary: Central authentication and authorization for web and mobile applications.
+description: |
+  Identity & access management (IAM) platform for web & mobile single sign-on (SSO), 
+  two-factor authentication (2FA) and API access management.
+
+confinement: strict
+base: core18
+
+passthrough:
+    system-usernames:
+      snap_daemon: shared
+
+
+parts:
+
+  amazon-correttor-jdk:
+     plugin: dump
+     source: https://d3pxv6yz143wms.cloudfront.net/8.222.10.1/amazon-corretto-8.222.10.1-linux-x64.tar.gz
+     organize:
+      "*" : opt/amazon-corretto-8.222.10.1-linux-x64/
+     stage-packages:
+       # the following packages are needed for amazon-corretto-jdk
+       - libgl1
+       - libx11-6
+       - libxdmcp6
+       - libasound2
+       - libatk1.0-0
+       - libfontconfig1
+       - libxcb1
+       - libpng16-16
+       - libxi6
+       - libxrender1
+       - libxtst6
+     override-prime: |
+       snapcraftctl prime
+        ln -s $SNAPCRAFT_PRIME/opt/amazon-corretto-8.222.10.1-linux-x64 $SNAPCRAFT_PRIME/opt/jre
+
+  jetty:
+    plugin: dump
+    source: https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.19.v20190610/jetty-distribution-9.4.19.v20190610.tar.gz
+    organize:
+      "*" : opt/jetty-9.4/
+    override-prime: |
+       snapcraftctl prime
+        ln -s $SNAPCRAFT_PRIME/opt/jetty-9.4 $SNAPCRAFT_PRIME/opt/jetty
+
+
+  opendj:
+    plugin: dump
+    source: https://ox.gluu.org/maven/org/forgerock/opendj/opendj-server-legacy/4.0.0-M3/opendj-server-legacy-4.0.0-M3.zip
+    source-type: zip
+    organize:
+      '*' : opt/
+    stage-packages:
+       - libpam-cap
+       - libcap2-bin
+    override-prime: |
+      snapcraftctl prime
+      echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/opt/opendj/instance.loc
+
+apps:
+
+  opendj-setup:
+    plugs:
+     - network
+     - network-bind
+    environment:
+      JAVA_HOME: "$SNAP/opt/jre"
+      JAVA_BIN: "$SNAP/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "$SNAP/opt/jre"
+    command: opt/opendj/setup
+
+  opendj-start:
+    plugs:
+     - network
+     - network-bind
+    environment:
+      JAVA_HOME: "$SNAP/opt/jre"
+      JAVA_BIN: "$SNAP/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "$SNAP/opt/jre"
+    command: opt/opendj/bin/start-ds
+
+  opendj-stop:
+    environment:
+      JAVA_HOME: "$SNAP/opt/jre"
+      JAVA_BIN: "$SNAP/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "$SNAP/opt/jre"
+    command: opt/opendj/bin/stop-ds
+
+  opendj:
+    environment:
+      JAVA_HOME: "$SNAP/opt/jre"
+      JAVA_BIN: "$SNAP/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "$SNAP/opt/jre"
+    plugs:
+     - network
+     - network-bind
+    daemon: forking
+    command: opt/opendj/bin/start-ds
+    stop-command: opt/opendj/bin/stop-ds
+
+
+    #WAR FILES AND JARS FOR JAVA APP
+
+    #idp.war
+    #source: http://ox.gluu.org/maven/org/gluu/oxshibbolethIdp/4.1/oxshibbolethIdp-4.1.war
+    
+    #identity.war
+    #source: http://ox.gluu.org/maven/org/gluu/oxtrust-server/4.1/oxtrust-server-4.1.war
+    
+    #oxauth.war
+    #source: http://ox.gluu.org/maven/org/gluu/oxauth-server/4.1/oxauth-server-4.1.war
+    
+    #shibboleth-idp.jar
+    #source: http://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/4.1/oxShibbolethStatic-4.1.jar 
+    
+    #idp3_cml_keygenerator.jar
+    #source: http://ox.gluu.org/maven/org/gluu/oxShibbolethKeyGenerator/4.1/oxShibbolethKeyGenerator-4.1.jar
+    
+    #gluu-radius-libs.zip
+    #source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1/super-gluu-radius-server-4.1-distribution.zip
+    #super-gluu-radius-server.jar
+    #source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1/super-gluu-radius-server-4.1.jar
+    #casa.war
+    #source: https://ox.gluu.org/maven/org/gluu/casa/$CASA_SOURCE/casa-$CASA_SOURCE.war
+    
+    #/etc/certs/casa.pub
+    #source: https://github.com/GluuFederation/casa/raw/$INSTALL/extras/casa.pub
+    #oxd-server/bin/lsox.sh
+    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/bin/lsox.sh
+    #/oxd-server/bin/oxd-start.sh
+    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/bin/oxd-start.sh
+    #oxd-server/conf/oxd-server.keystore
+    #source: https://github.com/GluuFederation/oxd/raw/$INSTALL/oxd-server/src/main/resources/oxd-server.keystore
+    #/oxd-server/conf/oxd-server.yml
+    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/resources/oxd-server.yml
+    #/oxd-server/conf/swagger.yaml
+    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/resources/swagger.yaml
+    #/oxd-server/lib/oxd-server.jar
+    #source: https://ox.gluu.org/maven/org/gluu/oxd-server/$OXD_SOURCE/oxd-server-$OXD_SOURCE.jar
+    #We need to keeop this file in mind cp /home/jenkins/oxd_files/bcprov-jdk15on-1.54.jar $DIRWEB/oxd-server/lib/    
+
+    #APPS
+    #twilio-7.17.0.jar
+    #source: https://repo1.maven.org/maven2/com/twilio/sdk/twilio/7.17.0/twilio-7.17.0.jar
+    
+    #jsmpp-2.3.7.jar
+    #source: https://search.maven.org/remotecontent?filepath=org/jsmpp/jsmpp/2.3.7/jsmpp-2.3.7.jar
+
+    
+    #community-edition-setup.zip
+    #source: https://github.com/GluuFederation/community-edition-setup/archive/$INSTALL.zip
+    
+    #opt/gluu/bin/install.py
+    #source: https://raw.githubusercontent.com/GluuFederation/community-edition-setup/master/install.py
+    
+    #passport.tgz
+    #source: https://ox.gluu.org/npm/passport/passport-4.1.0.tgz
+    
+    ##passport-$INSTALL-node_modules.tar.gz
+    #source: https://ox.gluu.org/npm/passport/passport-$INSTALL-node_modules.tar.gz
