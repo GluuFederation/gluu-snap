@@ -15,7 +15,7 @@ passthrough:
 
 parts:
 
-  amazon-correttor-jdk:
+  amazon-corretto-jdk:
      plugin: dump
      source: https://d3pxv6yz143wms.cloudfront.net/8.222.10.1/amazon-corretto-8.222.10.1-linux-x64.tar.gz
      organize:
@@ -60,6 +60,17 @@ parts:
       snapcraftctl prime
       echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/opt/opendj/instance.loc
 
+
+  jython:
+    plugin: nil
+    after: [amazon-correttor-jdk]
+    override-prime: |
+      snapcraftctl prime
+      wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O jython-installer.jar
+      $SNAPCRAFT_PRIME/opt/jre/bin/java -jar jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/opt/jython-2.7.2rc1 -t standard -e ensurepip
+      ln -s $SNAPCRAFT_PRIME/opt/jython-2.7.2rc1 $SNAPCRAFT_PRIME/opt/jython
+      rm jython-installer.jar
+
 apps:
 
   opendj-setup:
@@ -101,6 +112,11 @@ apps:
     command: opt/opendj/bin/start-ds
     stop-command: opt/opendj/bin/stop-ds
 
+  jython:
+    environment:
+      JAVA_HOME: "$SNAP/opt/jre"
+      JAVA_BIN: "$SNAP/opt/jre/bin/java"
+    command: opt/jre/bin/java  -jar $SNAP/opt/jython/jython.jar
 
     #WAR FILES AND JARS FOR JAVA APP
 
