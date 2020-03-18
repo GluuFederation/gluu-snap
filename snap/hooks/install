@@ -1,2 +1,5 @@
 #!/bin/bash -e
 snapctl stop --disable gluu-server.opendj
+
+mkdir -p $SNAP_COMMON/gluu/jetty/oxauth/
+touch $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state

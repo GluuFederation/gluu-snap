@@ -15,6 +15,8 @@ passthrough:
   layout:
     /opt/gluu:
       bind: $SNAP/opt/gluu
+    #/opt/gluu/jetty/oxauth/oxauth.state:
+    #  bind-file: $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state
 
 parts:
 
@@ -63,16 +65,23 @@ parts:
       snapcraftctl prime
       echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/opt/opendj/instance.loc
 
-
   jython:
     plugin: nil
-    after: [amazon-correttor-jdk]
+    after: [amazon-corretto-jdk]
     override-prime: |
       snapcraftctl prime
       wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O jython-installer.jar
       $SNAPCRAFT_PRIME/opt/jre/bin/java -jar jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/opt/jython-2.7.2rc1 -t standard -e ensurepip
       ln -s $SNAPCRAFT_PRIME/opt/jython-2.7.2rc1 $SNAPCRAFT_PRIME/opt/jython
       rm jython-installer.jar
+
+  oxauth:
+    plugin: nil
+    override-prime: |
+      snapcraftctl prime
+      wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.0.Final/oxauth-server-4.1.0.Final.war -O oxauth.war
+      mkdir -p $SNAPCRAFT_PRIME/opt/gluu/jetty/oxauth/webapps
+      cp oxauth.war $SNAPCRAFT_PRIME/opt/gluu/jetty/oxauth/webapps
 
 apps:
 
@@ -115,68 +124,9 @@ apps:
     command: opt/opendj/bin/start-ds
     stop-command: opt/opendj/bin/stop-ds
 
+
   jython:
     environment:
       JAVA_HOME: "$SNAP/opt/jre"
       JAVA_BIN: "$SNAP/opt/jre/bin/java"
     command: opt/jre/bin/java  -jar $SNAP/opt/jython/jython.jar
-
-    #WAR FILES AND JARS FOR JAVA APP
-
-    #idp.war
-    #source: http://ox.gluu.org/maven/org/gluu/oxshibbolethIdp/4.1/oxshibbolethIdp-4.1.war
-    
-    #identity.war
-    #source: http://ox.gluu.org/maven/org/gluu/oxtrust-server/4.1/oxtrust-server-4.1.war
-    
-    #oxauth.war
-    #source: http://ox.gluu.org/maven/org/gluu/oxauth-server/4.1/oxauth-server-4.1.war
-    
-    #shibboleth-idp.jar
-    #source: http://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/4.1/oxShibbolethStatic-4.1.jar 
-    
-    #idp3_cml_keygenerator.jar
-    #source: http://ox.gluu.org/maven/org/gluu/oxShibbolethKeyGenerator/4.1/oxShibbolethKeyGenerator-4.1.jar
-    
-    #gluu-radius-libs.zip
-    #source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1/super-gluu-radius-server-4.1-distribution.zip
-    #super-gluu-radius-server.jar
-    #source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1/super-gluu-radius-server-4.1.jar
-    #casa.war
-    #source: https://ox.gluu.org/maven/org/gluu/casa/$CASA_SOURCE/casa-$CASA_SOURCE.war
-    
-    #/etc/certs/casa.pub
-    #source: https://github.com/GluuFederation/casa/raw/$INSTALL/extras/casa.pub
-    #oxd-server/bin/lsox.sh
-    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/bin/lsox.sh
-    #/oxd-server/bin/oxd-start.sh
-    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/bin/oxd-start.sh
-    #oxd-server/conf/oxd-server.keystore
-    #source: https://github.com/GluuFederation/oxd/raw/$INSTALL/oxd-server/src/main/resources/oxd-server.keystore
-    #/oxd-server/conf/oxd-server.yml
-    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/resources/oxd-server.yml
-    #/oxd-server/conf/swagger.yaml
-    #source: https://raw.githubusercontent.com/GluuFederation/oxd/$INSTALL/oxd-server/src/main/resources/swagger.yaml
-    #/oxd-server/lib/oxd-server.jar
-    #source: https://ox.gluu.org/maven/org/gluu/oxd-server/$OXD_SOURCE/oxd-server-$OXD_SOURCE.jar
-    #We need to keeop this file in mind cp /home/jenkins/oxd_files/bcprov-jdk15on-1.54.jar $DIRWEB/oxd-server/lib/    
-
-    #APPS
-    #twilio-7.17.0.jar
-    #source: https://repo1.maven.org/maven2/com/twilio/sdk/twilio/7.17.0/twilio-7.17.0.jar
-    
-    #jsmpp-2.3.7.jar
-    #source: https://search.maven.org/remotecontent?filepath=org/jsmpp/jsmpp/2.3.7/jsmpp-2.3.7.jar
-
-    
-    #community-edition-setup.zip
-    #source: https://github.com/GluuFederation/community-edition-setup/archive/$INSTALL.zip
-    
-    #opt/gluu/bin/install.py
-    #source: https://raw.githubusercontent.com/GluuFederation/community-edition-setup/master/install.py
-    
-    #passport.tgz
-    #source: https://ox.gluu.org/npm/passport/passport-4.1.0.tgz
-    
-    ##passport-$INSTALL-node_modules.tar.gz
-    #source: https://ox.gluu.org/npm/passport/passport-$INSTALL-node_modules.tar.gz
