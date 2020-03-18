@@ -14,9 +14,9 @@ passthrough:
 
   layout:
     /opt/gluu:
-      bind: $SNAP/opt/gluu
-    #/opt/gluu/jetty/oxauth/oxauth.state:
-    #  bind-file: $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state
+      symlink: $SNAP/opt/gluu
+    $SNAP/opt/gluu/jetty/oxauth/oxauth.state:
+      symlink: $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state
 
 parts:
 
