@@ -9,9 +9,12 @@ confinement: strict
 base: core18
 
 passthrough:
-    system-usernames:
-      snap_daemon: shared
+  system-usernames:
+    snap_daemon: shared
 
+  layout:
+    /opt/gluu:
+      bind: $SNAP/opt/gluu
 
 parts:
 
