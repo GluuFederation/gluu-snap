@@ -1,5 +1,14 @@
 #!/bin/bash -e
-snapctl stop --disable gluu-server.opendj
+#snapctl stop --disable gluu-server.opendj
 
+mkdir -p $SNAP_COMMON/etc/gluu
+mkdir -p $SNAP_COMMON/run/jetty
+
+mkdir -p $SNAP_COMMON/etc/certs/
+mkdir -p $SNAP_COMMON/etc/default
+touch $SNAP_COMMON/etc/default/oxauth
+
+
+cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts
 mkdir -p $SNAP_COMMON/gluu/jetty/oxauth/
 touch $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state

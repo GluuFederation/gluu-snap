@@ -1,2 +1,2 @@
 #!/bin/bash -e
-snapctl --enable gluu-server.opendj
+#snapctl --enable gluu-server.opendj
