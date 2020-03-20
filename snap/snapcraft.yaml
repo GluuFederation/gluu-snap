@@ -15,8 +15,6 @@ passthrough:
       symlink: $SNAP/gluu-opt/jre
     /opt/jetty:
       symlink: $SNAP/gluu-opt/jetty
-    #/opt/gluu/jetty/oxauth/oxauth.state:
-    #  symlink: $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     #/var/run/jetty:
@@ -100,3 +98,4 @@ apps:
     plugs:
      - network
      - network-bind
+
