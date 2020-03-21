@@ -1,8 +1,0 @@
-snap/.snapcraft/
-parts/
-prime
-stage
-*.snap
-*.pkc
-.jython_cache/*
-*.idx
