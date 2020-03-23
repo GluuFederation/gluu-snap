@@ -26,6 +26,9 @@ passthrough:
     /opt/gluu/jetty/oxauth:
       symlink: $SNAP_COMMON/gluu/jetty/oxauth
 
+  system-usernames:
+    snap_daemon: shared
+
 parts:
 
   amazon-corretto-jdk:
@@ -65,9 +68,11 @@ parts:
     after: [amazon-corretto-jdk]
     override-prime: |
       snapcraftctl prime
-      wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O $SNAPCRAFT_PRIME/jython-installer.jar
-      $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
-      rm $SNAPCRAFT_PRIME/jython-installer.jar
+      if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jython" ]; then
+        wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O $SNAPCRAFT_PRIME/jython-installer.jar
+        $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
+        rm $SNAPCRAFT_PRIME/jython-installer.jar
+      fi
 
   oxauth:
     plugin: nil
@@ -79,6 +84,9 @@ parts:
       wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.0.Final/oxauth-server-4.1.0.Final.war -O $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-server.war
     stage-packages:
       - dpkg
+      - coreutils
+      - login
+
 
 apps:
 
@@ -93,9 +101,15 @@ apps:
       JAVA: "/opt/jre/bin/java"
       JETTY_HOME: "/opt/jetty"
       JETTY_RUN: "/tmp"
-    command: gluu-opt/dist/scripts/oxauth start
+      JETTY_USER: "root"
+      JETTY_SHELL: "/bin/sh"
 
     plugs:
      - network
      - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/oxauth start
+
+    #stop-command: gluu-opt/dist/scripts/oxauth stop
 

@@ -4,6 +4,7 @@ import os
 
 #snapctl stop --disable gluu-server.opendj
 
+os.system('snapctl stop --disable gluu-server.oxauth')
 os.system('mkdir -p $SNAP_COMMON/etc/gluu')
 os.system('mkdir -p $SNAP_COMMON/run/jetty')
 
