@@ -2,6 +2,7 @@ snap/.snapcraft/
 parts/
 prime
 stage
+apps/
 *.snap
 *.pkc
 .jython_cache/
