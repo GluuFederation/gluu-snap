@@ -20,7 +20,7 @@ passthrough:
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     /opt/gluu/setup:
-      symlink: $SNAP/gluu-opt/setup
+      symlink: $SNAP_COMMON/setup
     #/var/run/jetty:
     #    type: tmpfs
     /etc/certs:
@@ -44,9 +44,9 @@ parts:
 
   setup:
     plugin: dump
-    source: setup
+    source: setup/install
     organize:
-      "*" : gluu-opt/setup/
+      "*" : bin/
 
   amazon-corretto-jdk:
     plugin: dump
@@ -141,7 +141,7 @@ apps:
     plugs:
      - network
      - network-bind
-    command: usr/bin/python /opt/gluu/setup/setup.py
+    command: usr/bin/python $SNAP/bin/setup.py
 
   jython:
     environment:
