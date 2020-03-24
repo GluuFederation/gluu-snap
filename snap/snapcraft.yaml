@@ -19,6 +19,8 @@ passthrough:
       symlink: $SNAP/gluu-opt/opendj
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
+    /opt/gluu/setup:
+      symlink: $SNAP/gluu-opt/setup
     #/var/run/jetty:
     #    type: tmpfs
     /etc/certs:
@@ -40,9 +42,15 @@ parts:
      - python-ldap3
      - python-requests
 
+  setup:
+    plugin: dump
+    source: setup
+    organize:
+      "*" : gluu-opt/setup/
+
   amazon-corretto-jdk:
     plugin: dump
-    source: $SNAPCRAFT_PRIME/../apps/amazon-corretto.tar.gz
+    source: apps/amazon-corretto.tar.gz
     organize:
       "*" : gluu-opt/jre/
     stage-packages:
@@ -65,7 +73,7 @@ parts:
 
   jetty:
     plugin: dump
-    source: $SNAPCRAFT_PRIME/../apps/jetty.tar.gz
+    source: apps/jetty.tar.gz
     organize:
       "*" : gluu-opt/jetty/
     override-prime: |
@@ -83,7 +91,7 @@ parts:
 
   opendj:
     plugin: dump
-    source: $SNAPCRAFT_PRIME/../apps/opendj-server.zip
+    source: apps/opendj-server.zip
     source-type: zip
     organize:
       '*' : gluu-opt/
@@ -127,12 +135,13 @@ apps:
     plugs:
      - network
      - network-bind
-    environment:
-      JAVA_HOME: "/opt/jre"
-      JAVA_BIN: "/opt/jre/bin/java"
-      OPENDJ_JAVA_HOME: "/opt/jre"
     command: usr/bin/python
 
+  setup:
+    plugs:
+     - network
+     - network-bind
+    command: usr/bin/python /opt/gluu/setup/setup.py
 
   jython:
     environment:

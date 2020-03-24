@@ -5,7 +5,7 @@ from urllib.request import urlretrieve
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 app_dir = os.path.join(cur_dir, 'apps')
-app_versions = json.load(open(os.path.join(cur_dir, "app_versions.json")))
+app_versions = json.load(open(os.path.join(cur_dir, "setup/app_versions.json")))
 
 if not os.path.exists(app_dir):
     os.mkdir(app_dir)
