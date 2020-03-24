@@ -31,10 +31,14 @@ passthrough:
 
 parts:
 
-  bash:
+  prepare:
    plugin: nil
    stage-packages:
      - bash
+     - python
+     - python-ldap
+     - python-ldap3
+     - python-requests
 
   amazon-corretto-jdk:
     plugin: dump
@@ -118,6 +122,16 @@ apps:
       JAVA_BIN: "/opt/jre/bin/java"
       OPENDJ_JAVA_HOME: "/opt/jre"
     command: bin/bash
+
+  python:
+    plugs:
+     - network
+     - network-bind
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA_BIN: "/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "/opt/jre"
+    command: usr/bin/python
 
 
   jython:
