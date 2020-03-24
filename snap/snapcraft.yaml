@@ -15,6 +15,8 @@ passthrough:
       symlink: $SNAP/gluu-opt/jre
     /opt/jetty:
       symlink: $SNAP/gluu-opt/jetty
+    /opt/opendj:
+      symlink: $SNAP/gluu-opt/opendj
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     #/var/run/jetty:
@@ -28,6 +30,11 @@ passthrough:
 
 
 parts:
+
+  bash:
+   plugin: nil
+   stage-packages:
+     - bash
 
   amazon-corretto-jdk:
     plugin: dump
@@ -101,6 +108,17 @@ parts:
 
 
 apps:
+
+  bash:
+    plugs:
+     - network
+     - network-bind
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA_BIN: "/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "/opt/jre"
+    command: bin/bash
+
 
   jython:
     environment:
