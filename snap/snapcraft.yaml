@@ -70,6 +70,20 @@ parts:
         $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/../apps/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
       fi
 
+  opendj:
+    plugin: dump
+    source: $SNAPCRAFT_PRIME/../apps/opendj-server.zip
+    source-type: zip
+    organize:
+      '*' : gluu-opt/
+    stage-packages:
+       - libpam-cap
+       - libcap2-bin
+    override-prime: |
+      snapcraftctl prime
+      echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
+
+
   oxauth:
     plugin: nil
     override-prime: |
@@ -84,6 +98,8 @@ parts:
       - login
 
 
+
+
 apps:
 
   jython:
@@ -91,14 +107,36 @@ apps:
       JAVA_HOME: "/opt/jre"
     command: gluu-opt/jre/bin/java  -jar $SNAP/gluu-opt/jython/jython.jar
 
+
+  opendj-setup:
+    plugs:
+     - network
+     - network-bind
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA_BIN: "/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "/opt/jre"
+    command: gluu-opt/opendj/setup
+
+
+  opendj:
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA_BIN: "/opt/jre/bin/java"
+      OPENDJ_JAVA_HOME: "/opt/jre"
+    plugs:
+     - network
+     - network-bind
+    daemon: forking
+    command: gluu-opt/opendj/bin/start-ds
+    stop-command: gluu-opt/opendj/bin/stop-ds
+
+
   oxauth:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_HOME: "/opt/jetty"
-      JETTY_RUN: "/tmp"
-      JETTY_USER: "root"
-      JETTY_SHELL: "/bin/sh"
 
     plugs:
      - network

@@ -3,5 +3,6 @@
   "AMAZON_CORRETTO_VERSION": "8.222.10.1", 
   "OX_GITVERISON": ".Final", 
   "OX_VERSION": "4.1.0", 
-  "JYTHON_VERSION": "2.7.2rc1"
+  "JYTHON_VERSION": "2.7.2rc1",
+  "OPENDJ_VERSION": "4.0.0-M3"
 }
