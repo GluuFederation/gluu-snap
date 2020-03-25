@@ -43,11 +43,17 @@ parts:
      - python3-requests
      - apache2
 
-  setup:
+  setup-starter:
     plugin: dump
     source: setup/starter
     organize:
       "*" : bin/
+
+  packages:
+    plugin: nil
+    override-prime: |
+      cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-server.war
+      cp $SNAPCRAFT_PRIME/../apps/community-edition-setup.zip $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/community-edition-setup.zip
 
   amazon-corretto-jdk:
     plugin: dump
