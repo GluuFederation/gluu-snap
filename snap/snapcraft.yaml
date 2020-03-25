@@ -67,6 +67,17 @@ parts:
       - libxi6
       - libxrender1
       - libxtst6
+      - libcairo2
+      - libgdk-pixbuf2.0-0
+      - libgraphite2-3
+      - libharfbuzz0b
+      - libpango-1.0-0 
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libpixman-1-0
+      - libthai0
+      - libxcb-render0
+      - libxcb-shm0
 
     override-prime: |
       snapcraftctl prime
