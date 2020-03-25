@@ -58,7 +58,7 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      mdir -p opt/dist/gluu
+      mkdir -p opt/dist/gluu
       mkdir -p etc/certs
       wget -nv https://github.com/GluuFederation/casa/raw/version_4.1.0/extras/casa.pub -O etc/certs/casa.pub
       wget -nv https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final.jar -O opt/dist/gluu/super-gluu-radius-server.jar
@@ -103,14 +103,14 @@ parts:
     source: https://ox.gluu.org/npm/passport/passport-4.1.0.tgz 
     source-type: tar
     organize:
-      "*" : opt/dist/gluu/passport      
+      "*" : opt/dist/gluu/passport/
 
   passport-node:
     plugin: dump
     source: https://ox.gluu.org/npm/passport/passport-version_4.1.0-node_modules.tar.gz
     source-type: tar
     organize:
-      "*" : opt/dist/gluu/passport-node
+      "*" : opt/dist/gluu/passport-node/
 
   corretto:
     plugin: dump
@@ -165,28 +165,27 @@ parts:
     plugin: dump
     source: https://ox.gluu.org/maven/org/forgerock/opendj/opendj-server-legacy/4.0.0-M3/opendj-server-legacy-4.0.0-M3.zip
     organize:  
-      "*" : opt/opendj/
+      "*" : opt/
 
 apps:
   gluu-setup:
-    command: |
-      cd /install/community-edition-setup
-      ./setup.py
+    command: 
+      python install/community-edition-setup/setup.py
 
   gluu-start:
+    command:
+      opt/opendj/bin/start-ds
+      opt/dist/scripts/oxauth start
+      opt/dist/scripts/identity start
     plugs:
       - network
       - network-bind
-    command: |
-      /opt/opendj/bin/start-ds
-      /opt/dist/scripts/oxauth start
-      /opt/dist/scripts/identity start
 
   gluu-stop:
+    command: 
+      opt/opendj/bin/stop-ds
+      opt/dist/scripts/identity stop
+      opt/dist/scripts/oxauth stop
     plugs:
      - network
      - network-bind
-    command: | 
-      /opt/opendj/bin/stop-ds
-      /opt/dist/scripts/identity stop
-      /opt/dist/scripts/oxauth stop
