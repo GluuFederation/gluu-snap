@@ -21,14 +21,14 @@ passthrough:
        bind: $SNAP_COMMON/etc/gluu
     /opt/install:
       symlink: $SNAP_COMMON/install
-    #/var/run/jetty:
-    #    type: tmpfs
+    /var/gluu:
+        symlink: $SNAP_COMMON/var/gluu
     /etc/certs:
        symlink: $SNAP_COMMON/etc/certs
     /etc/default/oxauth:
        symlink: $SNAP_COMMON/etc/default/oxauth
-    /opt/gluu/jetty/oxauth:
-      symlink: $SNAP_COMMON/gluu/jetty/oxauth
+    /opt/gluu:
+      symlink: $SNAP_COMMON/gluu
     /opt/dist:
       symlink: $SNAP/gluu-opt/dist
 
@@ -44,6 +44,7 @@ parts:
      - python3-ldap3
      - python3-requests
      - apache2
+     - openssl
 
   setup-starter:
     plugin: dump
@@ -56,6 +57,7 @@ parts:
     override-prime: |
       cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-server.war
       cp $SNAPCRAFT_PRIME/../apps/community-edition-setup.zip $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/community-edition-setup.zip
+      cp $SNAPCRAFT_PRIME/../apps/oxauth-client-jar-with-dependencies.jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-client-jar-with-dependencies.jar
 
   amazon-corretto-jdk:
     plugin: dump

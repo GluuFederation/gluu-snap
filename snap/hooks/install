@@ -29,18 +29,23 @@ shutil.copytree(extract_dir, target_dir)
 
 shutil.rmtree(extract_dir)
 
+gluu_dirs = [
+    'etc/gluu',
+    'run/jetty',
+    'etc/certs',
+    'etc/default',
+    'gluu/jetty/oxauth',
+    ]
+for d in gluu_dirs:
+    path = os.path.join(snap_common_dir, d)
+    os.makedirs(path, exist_ok=True)
+
+
 os.system("snapctl stop --disable gluu-server.opendj")
 os.system('snapctl stop --disable gluu-server.oxauth')
-os.system('mkdir -p $SNAP_COMMON/etc/gluu')
-os.system('mkdir -p $SNAP_COMMON/run/jetty')
 
-
-
-os.system('mkdir -p $SNAP_COMMON/etc/certs/')
-os.system('mkdir -p $SNAP_COMMON/etc/default')
 os.system('touch $SNAP_COMMON/etc/default/oxauth')
 
-
 os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
-os.system('mkdir -p $SNAP_COMMON/gluu/jetty/oxauth/')
+
 os.system('touch $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state')
