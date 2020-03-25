@@ -29,6 +29,8 @@ passthrough:
        symlink: $SNAP_COMMON/etc/default/oxauth
     /opt/gluu/jetty/oxauth:
       symlink: $SNAP_COMMON/gluu/jetty/oxauth
+    /opt/dist:
+      symlink: $SNAP/gluu-opt/dist
 
 
 parts:
