@@ -138,13 +138,13 @@ parts:
     source: .
     override-pull: |
      mkdir -p opt/dist/app/
-     wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O opt/dist/app/jython-installer.jar
+     wget https://repo.gluu.org/snap-deps/jython-installer-2.7.2a.jar -O opt/dist/app/jython-installer.jar
     build-packages:
       - wget
 
   jetty:
     plugin: dump
-    source: https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.19.v20190610/jetty-distribution-9.4.19.v20190610.tar.gz
+    source: https://repo.gluu.org/snap-deps/jetty-distribution-9.4.26.v20200117.tar.gz
     organize:
      "*" : opt/jetty/
     override-prime: |
