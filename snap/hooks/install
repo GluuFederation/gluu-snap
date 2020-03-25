@@ -7,7 +7,7 @@ os.system('snapctl stop --disable gluu-server.oxauth')
 os.system('mkdir -p $SNAP_COMMON/etc/gluu')
 os.system('mkdir -p $SNAP_COMMON/run/jetty')
 
-os.system('mkdir -p $SNAP_COMMON/setup')
+os.system('mkdir -p $SNAP_COMMON/install')
 
 os.system('mkdir -p $SNAP_COMMON/etc/certs/')
 os.system('mkdir -p $SNAP_COMMON/etc/default')

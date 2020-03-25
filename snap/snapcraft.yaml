@@ -19,8 +19,8 @@ passthrough:
       symlink: $SNAP/gluu-opt/opendj
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
-    /opt/gluu/setup:
-      symlink: $SNAP_COMMON/setup
+    /opt/install:
+      symlink: $SNAP_COMMON/install
     #/var/run/jetty:
     #    type: tmpfs
     /etc/certs:
@@ -37,14 +37,14 @@ parts:
    plugin: nil
    stage-packages:
      - bash
-     - python
-     - python-ldap
-     - python-ldap3
-     - python-requests
+     - python3
+     - python3-ldap
+     - python3-ldap3
+     - python3-requests
 
   setup:
     plugin: dump
-    source: setup/install
+    source: setup/starter
     organize:
       "*" : bin/
 
@@ -135,13 +135,13 @@ apps:
     plugs:
      - network
      - network-bind
-    command: usr/bin/python
+    command: usr/bin/python3
 
   setup:
     plugs:
      - network
      - network-bind
-    command: usr/bin/python $SNAP/bin/setup.py
+    command: usr/bin/python3 $SNAP/bin/setup.py
 
   jython:
     environment:
