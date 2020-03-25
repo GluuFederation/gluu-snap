@@ -57,9 +57,10 @@ parts:
       - wget
      
   casa-files:
-    pluing: dump
+    plugin: dump
     source: .
     override-pull: |
+      mdir -p opt/dist/gluu
       mkdir -p etc/certs
       wget -nv https://github.com/GluuFederation/casa/raw/version_4.1.0/extras/casa.pub -O etc/certs/casa.pub
       wget -nv https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final.jar -O opt/dist/gluu/super-gluu-radius-server.jar
@@ -71,7 +72,7 @@ parts:
       - wget      
   
   super-radius:
-    pluing: dump
+    pluging: dump
     source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final-distribution.zip 
     override-prime: |
       snapcraftctl prime  
@@ -79,7 +80,7 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-radius-libs.zip $SNAPCRAFT_PRIME/opt/dist/gluu
   
   oxd-files:
-    pluing: dump
+    pluging: dump
     source: .
     override-pull: |
       mkdir -p oxd-server/bin 
@@ -109,7 +110,7 @@ parts:
     override-prime: |
       snapcraftctl prime  
       mkdir -p $SNAPCRAFT_PRIME/opt/dist/gluu
-      mv $SNAPCRAFT_PRIME/passport.tgz $SNAPCRAFT_PRIME/opt/dist/gluu/  
+      mv $SNAPCRAFT_PRIME/passport-4.1.0.tgz $SNAPCRAFT_PRIME/opt/dist/gluu/  
 
   passport-node:
     plugin: dump
@@ -156,7 +157,7 @@ parts:
      "*" : opt/jetty/
     override-prime: |
       snapcraftctl prime
-      $SNAPCRAFT_PRIME/opt/dist/scripts
+      mkdir -p $SNAPCRAFT_PRIME/opt/dist/scripts
       cp $SNAPCRAFT_PRIME/opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/opt/dist/scripts/oxauth 
       cp $SNAPCRAFT_PRIME/opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/opt/dist/scripts/identity 
       chmod +x $SNAPCRAFT_PRIME/opt/dist/scripts/oxauth
