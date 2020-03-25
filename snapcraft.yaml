@@ -72,7 +72,7 @@ parts:
       - wget      
   
   super-radius:
-    pluging: dump
+    plugin: dump
     source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final-distribution.zip 
     override-prime: |
       snapcraftctl prime  
@@ -80,7 +80,7 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-radius-libs.zip $SNAPCRAFT_PRIME/opt/dist/gluu
   
   oxd-files:
-    pluging: dump
+    plugin: dump
     source: .
     override-pull: |
       mkdir -p oxd-server/bin 
