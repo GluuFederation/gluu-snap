@@ -1,14 +1,26 @@
-name: gluu # you probably want to 'snapcraft register <name>'
-base: core18 # the base snap is the execution environment for this snap
-version: '4.1' # just for humans, typically '1.2+git' or '1.3.2'
-summary: gluu server
+name: gluu-server
+base: core18
+version: '4.1'
+summary: gluu server community edition.
 description: |
-  Gluu server.
+  Gluu Server Community Edition.
+  Central authentication and authorization for web & mobile applications.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: devel 
+confinement: devmode
 
 parts:
+  
+  depends:
+    plugin: nill
+    stage-packages:
+     - apache2
+     - python
+     - python-ldap
+     - python-ldap3
+     - python-requests
+     - zip
+
   gluu-sources:
     plugin: dump
     source: .
@@ -20,18 +32,56 @@ parts:
       wget -nv https://ox.gluu.org/maven/org/gluu/oxauth-rp/4.1.0.Final/oxauth-rp-4.1.0.Final.war -O opt/dist/gluu/oxauth-rp.war
       wget -nv http://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/4.1.0.Final/oxShibbolethStatic-4.1.0.Final.jar -O opt/dist/gluu/shibboleth-idp.jar
       wget -nv http://ox.gluu.org/maven/org/gluu/oxShibbolethKeyGenerator/4.1.0.Final/oxShibbolethKeyGenerator-4.1.0.Final.jar -O opt/dist/gluu/idp3_cml_keygenerator.jar
+    
+    build-packages: 
+      - wget
+      
+  setup-py:
+    plugin: dump
+    source: https://github.com/GluuFederation/community-edition-setup/archive/version_4.1.0.zip
+    source-type: zip
+    organize: 
+      "*" : install/community-edition-setup/
+    build-packages:
+      - zip
+
+  install-py:
+    plugin: dump
+    source: .
+    override-pull: |
       mkdir -p opt/gluu/bin
       wget -nv https://raw.githubusercontent.com/GluuFederation/community-edition-setup/master/install.py -O opt/gluu/bin/install.py
       chmod +x opt/gluu/bin/install.py
-      wget https://ox.gluu.org/npm/passport/passport-4.1.0.tgz -O opt/dist/gluu/passport.tgz
-      wget https://ox.gluu.org/npm/passport/passport-version_4.1.0-node_modules.tar.gz -O opt/dist/gluu/passport-version_4.1.0-node_modules.tar.gz
-      wget -nv https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final-distribution.zip -O opt/dist/gluu/gluu-radius-libs.zip
-      wget -nv https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final.jar -O opt/dist/gluu/super-gluu-radius-server.jar
-      wget https://ox.gluu.org/maven/org/gluu/casa/4.1.0.Final/casa-4.1.0.Final.war -O opt/dist/gluu/casa.war
-      wget https://repo1.maven.org/maven2/com/twilio/sdk/twilio/7.17.0/twilio-7.17.0.jar -O opt/dist/gluu/twilio-7.17.0.jar
-      wget https://search.maven.org/remotecontent?filepath=org/jsmpp/jsmpp/2.3.7/jsmpp-2.3.7.jar -O opt/dist/gluu/jsmpp-2.3.7.jar
+    
+    build-packages: 
+      - wget
+     
+  casa-files:
+    pluing: dump
+    source: .
+    override-pull: |
       mkdir -p etc/certs
-      wget https://github.com/GluuFederation/casa/raw/version_4.1.0/extras/casa.pub -O etc/certs/casa.pub
+      wget -nv https://github.com/GluuFederation/casa/raw/version_4.1.0/extras/casa.pub -O etc/certs/casa.pub
+      wget -nv https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final.jar -O opt/dist/gluu/super-gluu-radius-server.jar
+      wget -nv https://ox.gluu.org/maven/org/gluu/casa/4.1.0.Final/casa-4.1.0.Final.war -O opt/dist/gluu/casa.war
+      wget -nv https://repo1.maven.org/maven2/com/twilio/sdk/twilio/7.17.0/twilio-7.17.0.jar -O opt/dist/gluu/twilio-7.17.0.jar
+      wget -nv https://search.maven.org/remotecontent?filepath=org/jsmpp/jsmpp/2.3.7/jsmpp-2.3.7.jar -O opt/dist/gluu/jsmpp-2.3.7.jar
+    
+    build-packages: 
+      - wget      
+  
+  super-radius:
+    pluing: dump
+    source: https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/4.1.0.Final/super-gluu-radius-server-4.1.0.Final-distribution.zip 
+    override-prime: |
+      snapcraftctl prime  
+      mkdir -p $SNAPCRAFT_PRIME/opt/dist/gluu
+      mv $SNAPCRAFT_PRIME/gluu-radius-libs.zip $SNAPCRAFT_PRIME/opt/dist/gluu
+  
+  oxd-files:
+    pluing: dump
+    source: .
+    override-pull: |
       mkdir -p oxd-server/bin 
       mkdir -p oxd-server/data 
       mkdir -p oxd-server/lib 
@@ -50,10 +100,27 @@ parts:
 
     build-packages: 
       - wget
-      - curl
       - tar
 
-  amazon-corretto-jdk:
+  passport:
+    plugin: dump
+    source: https://ox.gluu.org/npm/passport/passport-4.1.0.tgz 
+    source-type: tar
+    override-prime: |
+      snapcraftctl prime  
+      mkdir -p $SNAPCRAFT_PRIME/opt/dist/gluu
+      mv $SNAPCRAFT_PRIME/passport.tgz $SNAPCRAFT_PRIME/opt/dist/gluu/  
+
+  passport-node:
+    plugin: dump
+    source: https://ox.gluu.org/npm/passport/passport-version_4.1.0-node_modules.tar.gz
+    source-type: tar
+    override-prime: |
+      snapcraftctl prime  
+      mkdir -p $SNAPCRAFT_PRIME/opt/dist/gluu
+      mv $SNAPCRAFT_PRIME/passport-version_4.1.0-node_modules.tar.gz $SNAPCRAFT_PRIME/opt/dist/gluu/
+
+  corretto:
     plugin: dump
     source: https://d3pxv6yz143wms.cloudfront.net/8.222.10.1/amazon-corretto-8.222.10.1-linux-x64.tar.gz
     organize:
@@ -75,13 +142,13 @@ parts:
      cd $SNAPCRAFT_PRIME/opt/jre/jre/lib/security; mv cacerts cacerts.bak; ln -s /var/snap/gluu/common/etc/certs/java-cacerts
 
   jython:
-    plugin: nil
-    after: [amazon-corretto-jdk]
-    override-prime: |
-     wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O $SNAPCRAFT_PRIME/jython-installer.jar
-     $SNAPCRAFT_PRIME/opt/jre/bin/java -jar $SNAPCRAFT_PRIME/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/opt/jython -t standard -e ensurepip
-     rm $SNAPCRAFT_PRIME/jython-installer.jar
-  
+    plugin: dump
+    override-dump: |
+     mkdir -p opt/dist/app/jython
+     wget https://repo1.maven.org/maven2/org/python/jython-installer/2.7.2rc1/jython-installer-2.7.2rc1.jar -O opt/dist/app/jython-installer.jar
+    build-packages:
+      - wget
+
   jetty:
     plugin: dump
     source: https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.19.v20190610/jetty-distribution-9.4.19.v20190610.tar.gz
@@ -89,3 +156,44 @@ parts:
      "*" : opt/jetty/
     override-prime: |
       snapcraftctl prime
+      $SNAPCRAFT_PRIME/opt/dist/scripts
+      cp $SNAPCRAFT_PRIME/opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/opt/dist/scripts/oxauth 
+      cp $SNAPCRAFT_PRIME/opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/opt/dist/scripts/identity 
+      chmod +x $SNAPCRAFT_PRIME/opt/dist/scripts/oxauth
+      chmod +x $SNAPCRAFT_PRIME/opt/dist/scripts/identity
+
+  node:
+    plugin: dump
+    source: https://nodejs.org/dist/v12.16.0/node-v12.16.0-linux-x64.tar.xz
+    organize:
+     "*" : opt/node/
+
+  opendj:
+    plugin: dump
+    source: https://ox.gluu.org/maven/org/forgerock/opendj/opendj-server-legacy/4.0.0-M3/opendj-server-legacy-4.0.0-M3.zip
+    organiza:  
+      "*" : opt/opendj/
+
+apps:
+  gluu-setup:
+    command: |
+      cd /install/community-edition-setup
+      ./setup.py
+
+  gluu-start:
+    plugs:
+      - network
+      - network-bind
+    command: |
+      /opt/opendj/bin/start-ds
+      /opt/dist/scripts/oxauth start
+      /opt/dist/scripts/identity start
+
+  gluu-stop:
+    plugs:
+     - network
+     - network-bind
+    command: | 
+      /opt/opendj/bin/stop-ds
+      /opt/dist/scripts/identity stop
+      /opt/dist/scripts/oxauth stop
