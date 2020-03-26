@@ -20,6 +20,7 @@ parts:
      - python-ldap3
      - python-requests
      - zip
+     - openssl
 
   gluu-sources:
     plugin: dump
@@ -177,7 +178,7 @@ apps:
       opt/opendj/bin/start-ds
       opt/dist/scripts/oxauth start
       opt/dist/scripts/identity start
-    daemon: simple
+    daemon: forking
     plugs:
       - network
       - network-bind
@@ -187,7 +188,6 @@ apps:
       opt/opendj/bin/stop-ds
       opt/dist/scripts/identity stop
       opt/dist/scripts/oxauth stop
-    daemon: simple
     plugs:
      - network
      - network-bind
