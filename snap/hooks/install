@@ -7,6 +7,8 @@ import shutil
 snap_dir = os.environ['SNAP']
 snap_common_dir = os.environ['SNAP_COMMON']
 
+print("Running install hook")
+
 #Extract community edition setup
 
 setup_package = os.path.join(snap_dir, 'gluu-opt/dist/gluu/community-edition-setup.zip')
@@ -35,17 +37,26 @@ gluu_dirs = [
     'etc/certs',
     'etc/default',
     'gluu/jetty/oxauth',
+    'gluu/jetty/identity',
     ]
 for d in gluu_dirs:
     path = os.path.join(snap_common_dir, d)
     os.makedirs(path, exist_ok=True)
 
-
-os.system("snapctl stop --disable gluu-server.opendj")
-os.system('snapctl stop --disable gluu-server.oxauth')
-
-os.system('touch $SNAP_COMMON/etc/default/oxauth')
-
 os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
 
-os.system('touch $SNAP_COMMON/gluu/jetty/oxauth/oxauth.state')
+os.system("snapctl stop --disable gluu-server.opendj")
+
+jetty_services = ['oxauth', 'identity']
+
+for service in jetty_services:
+    state_fn = os.path.join(snap_common_dir, 'gluu/jetty', service, service+'.state')
+
+    if not os.path.exists(state_fn):
+        try:
+            open(state_fn, 'w').close()
+        except:
+            print("Can't create", state_fn)
+
+    cmd = 'snapctl stop --disable gluu-server.{}  '.format(service)
+    os.system(cmd)

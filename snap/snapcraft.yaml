@@ -27,6 +27,8 @@ passthrough:
        symlink: $SNAP_COMMON/etc/certs
     /etc/default/oxauth:
        symlink: $SNAP_COMMON/etc/default/oxauth
+    /etc/default/identity:
+       symlink: $SNAP_COMMON/etc/default/identity
     /opt/gluu:
       symlink: $SNAP_COMMON/gluu
     /opt/dist:
@@ -55,7 +57,6 @@ parts:
   packages:
     plugin: nil
     override-prime: |
-      cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-server.war
       cp $SNAPCRAFT_PRIME/../apps/community-edition-setup.zip $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/community-edition-setup.zip
       cp $SNAPCRAFT_PRIME/../apps/oxauth-client-jar-with-dependencies.jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-client-jar-with-dependencies.jar
 
@@ -124,22 +125,27 @@ parts:
       snapcraftctl prime
       echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
 
-
   oxauth:
+    after: [jetty]
     plugin: nil
     override-prime: |
       snapcraftctl prime
       mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/gluu
       mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/scripts
+      cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth.war
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxauth
-      cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-server.war
     stage-packages:
       - dpkg
       - coreutils
       - login
 
-
-
+  identity:
+    plugin: nil
+    after: [oxauth]
+    override-prime: |
+      snapcraftctl prime
+      cp $SNAPCRAFT_PRIME/../apps/oxtrust-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/identity.war
+      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/identity
 
 apps:
 
@@ -200,6 +206,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_HOME: "/opt/jetty"
+      JETTY_RUN: "/tmp/jetty_temp"
 
     plugs:
      - network
@@ -209,3 +216,18 @@ apps:
     command: gluu-opt/dist/scripts/oxauth start
     stop-command: gluu-opt/dist/scripts/oxauth stop
 
+
+  identity:
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA: "/opt/jre/bin/java"
+      JETTY_HOME: "/opt/jetty"
+      JETTY_RUN: "/tmp/jetty_temp"
+
+    plugs:
+     - network
+     - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/identity start
+    stop-command: gluu-opt/dist/scripts/identity stop

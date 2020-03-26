@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+
+import os
+
+snap_dir = os.environ['SNAP']
+snap_common_dir = os.environ['SNAP_COMMON']
+
+print("Running pre-refresh hook")
+
+os.system("snapctl stop --disable gluu-server.opendj")
+
+jetty_services = ['oxauth', 'identity']
+
+for service in jetty_services:
+    state_fn = os.path.join(snap_common_dir, 'gluu/jetty', service, service+'.state')
+
+    if not os.path.exists(state_fn):
+        try:
+            open(state_fn, 'w').close()
+        except:
+            print("Can't create", state_fn)
+
+    cmd = 'snapctl stop --disable gluu-server.{}  '.format(service)
+    os.system(cmd)
+
