@@ -188,6 +188,7 @@ apps:
       opt/opendj/bin/stop-ds
       opt/dist/scripts/identity stop
       opt/dist/scripts/oxauth stop
+    daemon: forking  
     plugs:
      - network
      - network-bind
