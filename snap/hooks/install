@@ -38,6 +38,7 @@ gluu_dirs = [
     'etc/default',
     'gluu/jetty/oxauth',
     'gluu/jetty/identity',
+    'run',
     ]
 for d in gluu_dirs:
     path = os.path.join(snap_common_dir, d)
