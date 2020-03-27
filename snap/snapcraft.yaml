@@ -37,9 +37,9 @@ passthrough:
     /opt/dist:
       symlink: $SNAP/gluu-opt/dist
     /usr/lib/apache2:
-        symlink: $SNAP/usr/lib/apache2
+      symlink: $SNAP/usr/lib/apache2
     /usr/share/apache2:
-        symlink: $SNAP/usr/share/apache2
+      symlink: $SNAP/usr/share/apache2
 
     
 parts:
@@ -196,8 +196,8 @@ apps:
       APACHE_LOCK_DIR:  "/opt/gluu/run/apache2"
       APACHE_LOG_DIR:   "/opt/gluu/log/apache2"
 
-    command: usr/sbin/apache2 -d /opt/gluu/apache2 -k start
-    stop-command: usr/sbin/apache2 -d /opt/gluu/apache2 -k stop
+    command: usr/sbin/apache2 -d $SNAP_COMMON/etc/apache2 -k start
+    stop-command: usr/sbin/apache2 -d $SNAP_COMMON/etc/apache2 -k stop
     daemon: forking
     restart-condition: always
     plugs:
