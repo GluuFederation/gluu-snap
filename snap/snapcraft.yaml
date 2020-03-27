@@ -59,10 +59,7 @@ parts:
     plugin: nil
     stage-packages:
       - apache2
-    override-prime: |
-      snapcraftctl prime
-      cp $SNAPCRAFT_PRIME/../setup/envvars.apache2 $SNAPCRAFT_PRIME/etc/apache2/envvars
-    
+
   setup-starter:
     plugin: dump
     source: setup/starter
@@ -191,10 +188,18 @@ apps:
     command: usr/bin/python3 $SNAP/bin/setup.py
 
   apache:
-    command: usr/sbin/apachectl start
-    #stop-command: usr/sbin/apachectl stop
-    #daemon: forking
-    #restart-condition: always
+    environment:
+      APACHE_RUN_USER:  "snap_daemon"
+      APACHE_RUN_GROUP: "snap_daemon"
+      APACHE_PID_FILE:  "/opt/gluu/run/apache2/apache2.pid"
+      APACHE_RUN_DIR:   "/opt/gluu/run/apache2"
+      APACHE_LOCK_DIR:  "/opt/gluu/run/apache2"
+      APACHE_LOG_DIR:   "/opt/gluu/log/apache2"
+
+    command: usr/sbin/apache2 -d /opt/gluu/apache2 -k start
+    stop-command: usr/sbin/apache2 -d /opt/gluu/apache2 -k stop
+    daemon: forking
+    restart-condition: always
     plugs:
       - network
       - network-bind
