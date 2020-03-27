@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import shutil
 
 snap_dir = os.environ['SNAP']
 snap_common_dir = os.environ['SNAP_COMMON']
@@ -8,6 +9,7 @@ snap_common_dir = os.environ['SNAP_COMMON']
 print("Running pre-refresh hook")
 
 os.system("snapctl stop --disable gluu-server.opendj")
+os.system("snapctl stop --disable gluu-server.apache")
 
 jetty_services = ['oxauth', 'identity']
 
@@ -23,3 +25,8 @@ for service in jetty_services:
     cmd = 'snapctl stop --disable gluu-server.{}  '.format(service)
     os.system(cmd)
 
+if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
+    shutil.copytree(
+            os.path.join(snap_dir, 'etc/apache2'),
+            os.path.join(snap_common_dir, 'etc/apachhe2')
+            )

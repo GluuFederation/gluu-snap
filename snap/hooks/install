@@ -38,6 +38,8 @@ gluu_dirs = [
     'etc/default',
     'gluu/jetty/oxauth',
     'gluu/jetty/identity',
+    'gluu/log/apache2',
+    'gluu/run/apache2',
     'run',
     ]
 for d in gluu_dirs:
@@ -47,6 +49,7 @@ for d in gluu_dirs:
 os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
 
 os.system("snapctl stop --disable gluu-server.opendj")
+os.system("snapctl stop --disable gluu-server.apache")
 
 jetty_services = ['oxauth', 'identity']
 
@@ -61,3 +64,9 @@ for service in jetty_services:
 
     cmd = 'snapctl stop --disable gluu-server.{}  '.format(service)
     os.system(cmd)
+
+if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
+    shutil.copytree(
+            os.path.join(snap_dir, 'etc/apache2'),
+            os.path.join(snap_common_dir, 'etc/apache2')
+            )

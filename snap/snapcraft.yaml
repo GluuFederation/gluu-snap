@@ -1,5 +1,5 @@
 name: gluu-server
-version: 1
+version: 1.0
 summary: Central authentication and authorization for web and mobile applications.
 description: |
   Identity & access management (IAM) platform for web & mobile single sign-on (SSO), 
@@ -59,6 +59,7 @@ parts:
     plugin: nil
     stage-packages:
       - apache2
+      - perl-base
 
   setup-starter:
     plugin: dump
