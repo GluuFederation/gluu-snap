@@ -65,6 +65,7 @@ parts:
    plugin: python
    python-packages:
      - yacron
+     - pyyaml
    
 
   apache2:
