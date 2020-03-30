@@ -40,26 +40,32 @@ passthrough:
       symlink: $SNAP/usr/lib/apache2
     /usr/share/apache2:
       symlink: $SNAP/usr/share/apache2
-
+    /etc/ssl/openssl.cnf:
+      bind-file: $SNAP/etc/ssl/openssl.cnf
+    
     
 parts:
 
   base-system:
-   plugin: nil
-   stage-packages:
-     - bash
-     - python3
-     - python3-ldap
-     - python3-ldap3
-     - python3-requests
-     
-     - openssl
+    plugin: nil
+    stage-packages:
+      - bash
+      - python3
+      - python3-ldap
+      - python3-ldap3
+      - python3-requests
+      - openssl
+    override-prime: |
+      snapcraftctl prime
+      sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
+
 
   apache2:
+    after: [base-system]
     plugin: nil
     stage-packages:
       - apache2
-      - perl-base
+
 
   setup-starter:
     plugin: dump
@@ -74,6 +80,7 @@ parts:
       cp $SNAPCRAFT_PRIME/../apps/oxauth-client-jar-with-dependencies.jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-client-jar-with-dependencies.jar
 
   amazon-corretto-jdk:
+    after: [base-system]
     plugin: dump
     source: apps/amazon-corretto.tar.gz
     organize:
