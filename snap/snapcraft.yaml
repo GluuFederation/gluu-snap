@@ -55,10 +55,17 @@ parts:
       - python3-ldap3
       - python3-requests
       - openssl
+      - python3-pip
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
 
+  yacron:
+   after: [base-system]
+   plugin: python
+   python-packages:
+     - yacron
+   
 
   apache2:
     after: [base-system]
@@ -182,6 +189,10 @@ apps:
       JAVA_BIN: "/opt/jre/bin/java"
       OPENDJ_JAVA_HOME: "/opt/jre"
     command: bin/bash
+
+  yacron:
+    command: bin/yacron -c $SNAP_COMMON/etc/cron-jobs.yaml
+    daemon: simple
 
   python:
     plugs:

@@ -70,3 +70,8 @@ if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
             os.path.join(snap_dir, 'etc/apache2'),
             os.path.join(snap_common_dir, 'etc/apache2')
             )
+
+yacron_yaml = os.path.join(snap_common_dir, 'etc/cron-jobs.yaml')
+if not os.path.exists(yacron_yaml):
+    open(yacron_yaml,'w').close()
+        
