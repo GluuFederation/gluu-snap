@@ -42,7 +42,7 @@ $ sudo apt update
 $ sudo apt install snapd
 ```
 
-If you did not build gluu-server snap package yourself, download latest version of experimental gluu-snap package from http://c1.gluu.org:8999/snap
+If you did not build gluu-server snap package yourself, download latest version of experimental gluu-snap package from https://repo.gluu.org/snaps/
 Install gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
 
 ```
