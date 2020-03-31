@@ -34,7 +34,7 @@ $ snapcraft
 ```
 This will build snap packaged `gluu-server_<version>_amd64.snap` in current directory. 
 
-# Install gluu-snap Package
+# Install gluu-server Snap Package
 To install snap package you need Ubuntu 18 machine. First install **snap** (If you build yourself, you have done this in the prvious step):
 
 ```
