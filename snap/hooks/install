@@ -44,6 +44,7 @@ gluu_dirs = [
     'run',
     'var/gluu',
     'var/www/html',
+    'gluu/shibboleth-idp',
     ]
 for d in gluu_dirs:
     path = os.path.join(snap_common_dir, d)
@@ -54,7 +55,7 @@ os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/c
 os.system("snapctl stop --disable gluu-server.opendj")
 os.system("snapctl stop --disable gluu-server.apache")
 
-jetty_services = ['oxauth', 'identity']
+jetty_services = ['oxauth', 'identity', 'idp']
 
 for service in jetty_services:
     state_fn = os.path.join(snap_common_dir, 'gluu/jetty', service, service+'.state')

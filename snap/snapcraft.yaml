@@ -32,6 +32,8 @@ passthrough:
        symlink: $SNAP_COMMON/etc/default/oxauth
     /etc/default/identity:
        symlink: $SNAP_COMMON/etc/default/identity
+    /etc/default/idp:
+       symlink: $SNAP_COMMON/etc/default/idp
     /opt/gluu:
       symlink: $SNAP_COMMON/gluu
     /opt/dist:
@@ -44,8 +46,10 @@ passthrough:
       symlink: $SNAP_COMMON/var/www/html
     /etc/ssl/openssl.cnf:
       bind-file: $SNAP/etc/ssl/openssl.cnf
-    
-    
+    /opt/shibboleth-idp:
+      symlink: $SNAP_COMMON/gluu/shibboleth-idp
+
+
 parts:
 
   base-system:
@@ -190,6 +194,15 @@ parts:
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/identity
 
+  idp:
+    plugin: dump
+    after: [identity]
+    source: apps/idp
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    override-prime: |
+      snapcraftctl prime
+      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/idp
 
 apps:
 
@@ -296,3 +309,18 @@ apps:
     daemon: forking
     command: gluu-opt/dist/scripts/identity start
     stop-command: gluu-opt/dist/scripts/identity stop
+
+  idp:
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA: "/opt/jre/bin/java"
+      JETTY_HOME: "/opt/jetty"
+      JETTY_RUN: "/tmp/jetty_temp"
+
+    plugs:
+     - network
+     - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/idp start
+    stop-command: gluu-opt/dist/scripts/idp stop
