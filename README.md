@@ -4,7 +4,7 @@ packaging offering it by Canonical to distribute an app into many different OS i
 
 This package will containg and delivering the same structure as we offer on GLuu-ce rpm's and deb's
 
-If you are interested in testing experimental gluu-snap packages, just jump to []
+If you are interested in testing experimental gluu-snap packages, just jump to [Install gluu-snap Package](#install-gluu-snap-package)
 
 # Building gluu-snap package
 **Warning ! This is experimental package.**
@@ -25,7 +25,7 @@ $ sudo apt install snapcfraft
 $ git clone https://github.com/GluuFederation/gluu-snap.git
 ```
 
-## Building snap package
+## Building Snap Package
 
 ```
 $ cd gluu-snap
@@ -34,7 +34,7 @@ $ snapcraft
 ```
 This will build snap packaged `gluu-server_<version>_amd64.snap` in current directory. 
 
-# Install gluu-snap package
+# Install gluu-snap Package
 To install snap package you need Ubuntu 18 machine. First install **snap** (If you build yourself, you have done this in the prvious step):
 
 ```
@@ -42,7 +42,7 @@ $ sudo apt update
 $ sudo apt install snapd
 ```
 
-Download latest version of experimental gluu-snap package from http://c1.gluu.org:8999/snap
+If you did not build gluu-server snap package yourself, download latest version of experimental gluu-snap package from http://c1.gluu.org:8999/snap
 Install gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
 
 ```
