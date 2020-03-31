@@ -42,7 +42,8 @@ gluu_dirs = [
     'gluu/log/apache2',
     'gluu/run/apache2',
     'run',
-    'var/gluu'
+    'var/gluu',
+    'var/www/html',
     ]
 for d in gluu_dirs:
     path = os.path.join(snap_common_dir, d)

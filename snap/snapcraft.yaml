@@ -40,6 +40,8 @@ passthrough:
       symlink: $SNAP/usr/lib/apache2
     /usr/share/apache2:
       symlink: $SNAP/usr/share/apache2
+    /var/www/html:
+      symlink: $SNAP_COMMON/var/www/html
     /etc/ssl/openssl.cnf:
       bind-file: $SNAP/etc/ssl/openssl.cnf
     
