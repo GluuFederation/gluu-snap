@@ -58,6 +58,14 @@ parts:
       - python3-requests
       - openssl
       - python3-pip
+      #followings are for opendj
+      - libpam-cap
+      - libcap2-bin
+      #followings are for oxauth
+      - dpkg
+      - coreutils
+      - login
+      
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
@@ -76,23 +84,24 @@ parts:
     stage-packages:
       - apache2
 
-
   setup-starter:
     plugin: dump
     source: setup/starter
+    source-type: local
     organize:
       "*" : bin/
 
-  packages:
-    plugin: nil
-    override-prime: |
-      cp $SNAPCRAFT_PRIME/../apps/community-edition-setup.zip $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/community-edition-setup.zip
-      cp $SNAPCRAFT_PRIME/../apps/oxauth-client-jar-with-dependencies.jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth-client-jar-with-dependencies.jar
+  community-edition-setup:
+    plugin: dump
+    source: apps/setup/
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
 
   amazon-corretto-jdk:
     after: [base-system]
     plugin: dump
-    source: apps/amazon-corretto.tar.gz
+    source: apps/corretto/amazon-corretto.tar.gz
     organize:
       "*" : gluu-opt/jre/
     stage-packages:
@@ -130,56 +139,57 @@ parts:
 
   jetty:
     plugin: dump
-    source: apps/jetty.tar.gz
+    source: apps/jetty/jetty.tar.gz
     organize:
       "*" : gluu-opt/jetty/
-    override-prime: |
-      snapcraftctl prime
-
 
   jython:
-    plugin: nil
+    plugin: dump
     after: [amazon-corretto-jdk]
+    source: apps/jython/
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    source-type: local
     override-prime: |
       snapcraftctl prime
       if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jython" ]; then
-        $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/../apps/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
+        $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
+        rm $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/jython-installer.jar
       fi
 
   opendj:
+    after: [jython]
     plugin: dump
-    source: apps/opendj-server.zip
+    source: apps/opendj/opendj-server.zip
     source-type: zip
     organize:
       '*' : gluu-opt/
-    stage-packages:
-       - libpam-cap
-       - libcap2-bin
     override-prime: |
       snapcraftctl prime
       echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
-
+      
   oxauth:
     after: [jetty]
-    plugin: nil
+    plugin: dump
+    source: apps/oxauth
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
     override-prime: |
       snapcraftctl prime
-      mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/gluu
       mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/scripts
-      cp $SNAPCRAFT_PRIME/../apps/oxauth-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxauth.war
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxauth
-    stage-packages:
-      - dpkg
-      - coreutils
-      - login
 
   identity:
-    plugin: nil
+    plugin: dump
     after: [oxauth]
+    source: apps/identity
+    organize:
+      "*" : /gluu-opt/dist/gluu/
     override-prime: |
       snapcraftctl prime
-      cp $SNAPCRAFT_PRIME/../apps/oxtrust-server.war $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/identity.war
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/identity
+
 
 apps:
 
