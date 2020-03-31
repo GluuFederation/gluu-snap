@@ -55,4 +55,4 @@ After installing, you can run setup as follows:
 $ sudo gluu-server.setup
 ```
 
-Setup will continue as usual. Please note that we currently support oxauth and oxtrust
+Setup will continue as usual. Please note that you will be asked to install only implemented services.
