@@ -10,9 +10,6 @@ base: core18
 
 passthrough:
 
-  system-usernames:
-    snap_daemon: shared
-
   layout:
     /opt/jre:
       symlink: $SNAP/gluu-opt/jre
@@ -234,8 +231,8 @@ apps:
 
   apache:
     environment:
-      APACHE_RUN_USER:  "snap_daemon"
-      APACHE_RUN_GROUP: "snap_daemon"
+      APACHE_RUN_USER:  "nobody"
+      APACHE_RUN_GROUP: "nobody"
       APACHE_PID_FILE:  "/opt/gluu/run/apache2/apache2.pid"
       APACHE_RUN_DIR:   "/opt/gluu/run/apache2"
       APACHE_LOCK_DIR:  "/opt/gluu/run/apache2"
