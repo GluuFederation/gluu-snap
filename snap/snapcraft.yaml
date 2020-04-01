@@ -170,8 +170,8 @@ parts:
       '*' : gluu-opt/
     override-prime: |
       snapcraftctl prime
-      echo "/var/snap/gluu-server/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
-      
+      echo "/var/snap/$SNAPCRAFT_PROJECT_NAME/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
+
   oxauth:
     after: [jetty]
     plugin: dump
