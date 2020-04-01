@@ -73,6 +73,8 @@ parts:
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
+    build-packages:
+      - sed
 
   yacron:
    after: [base-system]
