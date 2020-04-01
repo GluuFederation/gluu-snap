@@ -18,6 +18,8 @@ passthrough:
       symlink: $SNAP/gluu-opt/jetty
     /opt/opendj:
       symlink: $SNAP/gluu-opt/opendj
+    /opt/node:
+      symlink: $SNAP/gluu-opt/node      
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     /opt/install:
@@ -159,6 +161,12 @@ parts:
         $SNAPCRAFT_PRIME/gluu-opt/jre/bin/java -jar $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/jython-installer.jar -v -s -d $SNAPCRAFT_PRIME/gluu-opt/jython -t standard -e ensurepip
         rm $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/jython-installer.jar
       fi
+
+  node:
+    plugin: dump
+    source: apps/node/node.tar.xz
+    organize:
+      "*" : gluu-opt/node
 
   opendj:
     after: [jython]

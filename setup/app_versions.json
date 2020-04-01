@@ -5,5 +5,5 @@
   "OX_VERSION": "4.1.0", 
   "JYTHON_VERSION": "2.7.2rc1",
   "OPENDJ_VERSION": "4.0.0-M3",
-  "SETUP_BRANCH": "version_4.1.snap"
+  "NODE_VERSION": "v12.6.0"
 }
