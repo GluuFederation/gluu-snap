@@ -5,6 +5,7 @@ description: |
   Identity & access management (IAM) platform for web & mobile single sign-on (SSO), 
   two-factor authentication (2FA) and API access management.
 
+grade: stable
 confinement: strict
 base: core18
 
