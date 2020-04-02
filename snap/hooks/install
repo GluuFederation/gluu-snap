@@ -61,7 +61,7 @@ for s in ('opendj', 'apache', 'passport'):
     os.system('snapctl stop --disable gluu-server.' + s)
 
 
-jetty_services = ['oxauth', 'identity', 'idp']
+jetty_services = ['oxauth', 'identity', 'idp', 'oxauth-rp']
 
 for service in jetty_services:
     state_fn = os.path.join(snap_common_dir, 'gluu/jetty', service, service+'.state')
