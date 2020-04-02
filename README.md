@@ -56,3 +56,6 @@ $ sudo gluu-server.setup
 ```
 
 Setup will continue as usual. Please note that you will be asked to install only implemented services.
+
+# Notes
+* Since this is experimental package, we use latest version of community-edition-setup, but installing Gluu Server 4.1.0 services. Hence passport social script is changed, you need to replace passport_social script with https://raw.githubusercontent.com/GluuFederation/community-edition-setup/version_4.1.0/static/extension/person_authentication/PassportExternalAuthenticator.py in OXtrust UI. Once we build 4.2, we won't need this change.
