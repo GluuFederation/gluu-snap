@@ -34,6 +34,8 @@ passthrough:
        symlink: $SNAP_COMMON/etc/default/identity
     /etc/default/idp:
        symlink: $SNAP_COMMON/etc/default/idp
+    /etc/default/passport:
+       symlink: $SNAP_COMMON/etc/default/passport
     /opt/gluu:
       symlink: $SNAP_COMMON/gluu
     /opt/dist:
@@ -211,6 +213,16 @@ parts:
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/idp
 
+  passport:
+    plugin: dump
+    source: apps/passport
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    override-prime: |
+      snapcraftctl prime
+      mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/passport $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
+      chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
+
 apps:
 
   bash:
@@ -241,8 +253,8 @@ apps:
 
   apache:
     environment:
-      APACHE_RUN_USER:  "nobody"
-      APACHE_RUN_GROUP: "nobody"
+      APACHE_RUN_USER:  "daemon"
+      APACHE_RUN_GROUP: "daemon"
       APACHE_PID_FILE:  "/opt/gluu/run/apache2/apache2.pid"
       APACHE_RUN_DIR:   "/opt/gluu/run/apache2"
       APACHE_LOCK_DIR:  "/opt/gluu/run/apache2"
@@ -331,3 +343,12 @@ apps:
     daemon: forking
     command: gluu-opt/dist/scripts/idp start
     stop-command: gluu-opt/dist/scripts/idp stop
+
+  passport:
+    plugs:
+     - network
+     - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/passport start
+    stop-command: gluu-opt/dist/scripts/passport stop

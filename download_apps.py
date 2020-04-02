@@ -32,3 +32,4 @@ if not '-e' in sys.argv:
 download('https://ox.gluu.org/npm/passport/passport-{}.tgz'.format(app_versions['OX_VERSION']), 'passport/passport.tgz')
 download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['OX_VERSION']), 'passport/passport-node_modules.tar.gz')
 download('https://nodejs.org/dist/{0}/node-{0}-linux-x64.tar.xz'.format(app_versions['NODE_VERSION']), 'node/node.tar.xz')
+download('https://raw.githubusercontent.com/GluuFederation/community-edition-setup/{}/static/system/initd/passport'.format(app_versions['SETUP_BRANCH']), 'passport/passport')

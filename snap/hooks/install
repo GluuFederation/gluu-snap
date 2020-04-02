@@ -57,8 +57,9 @@ for d in gluu_dirs:
 
 os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
 
-os.system("snapctl stop --disable gluu-server.opendj")
-os.system("snapctl stop --disable gluu-server.apache")
+for s in ('opendj', 'apache', 'passport'):
+    os.system('snapctl stop --disable gluu-server.' + s)
+
 
 jetty_services = ['oxauth', 'identity', 'idp']
 
