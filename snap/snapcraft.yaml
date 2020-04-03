@@ -19,7 +19,9 @@ passthrough:
     /opt/opendj:
       symlink: $SNAP/gluu-opt/opendj
     /opt/node:
-      symlink: $SNAP/gluu-opt/node      
+      symlink: $SNAP/gluu-opt/node
+    /opt/oxd-server:
+      symlink: $SNAP/gluu-opt/oxd-server
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     /opt/install:
@@ -216,6 +218,23 @@ parts:
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/idp
 
+  oxd-server:
+    plugin: dump
+    source: apps/oxd-server/oxd-server.zip
+    organize:
+      "*" : /gluu-opt/oxd-server
+
+  oxd-server-start:
+    plugin: dump
+    source: apps/oxd-server/start
+    source-type: local
+    organize:
+      "*" : gluu-opt/dist/scripts/
+    override-prime: |
+      snapcraftctl prime
+      chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
+
+
   passport:
     plugin: dump
     source: apps/passport
@@ -239,6 +258,7 @@ parts:
       fi
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
+
 
 apps:
 
@@ -394,5 +414,26 @@ apps:
     command: gluu-opt/dist/scripts/gluu-radius start
     stop-command: gluu-opt/dist/scripts/gluu-radius stop
 
+
+  oxd-server:
+    plugs:
+     - network
+     - network-bind
+
+    environment:
+    
+      OXD_LOGS: "$SNAP_COMMON/gluu/oxd-server/log"
+      CONF: "$SNAP_COMMON/gluu/oxd-server/conf"
+      OXD_HOME: "/opt/oxd-server"
+      OXD_USER: "root"
+      LIB: "$OXD_HOME/lib"
+      OXD_PID_FILE: "$SNAP_COMMON/gluu/oxd-server/run/oxd-server.pid"
+      OXD_RUN: "$SNAP_COMMON/run"
+      OXD_STATE: "$SNAP_COMMON/gluu/oxd-server/run/oxd-server.state"
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/oxd-server start
+    stop-command: gluu-opt/dist/scripts/oxd-server stop
+    
 
 
