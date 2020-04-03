@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import glob
 import zipfile
 import shutil
 
@@ -8,6 +9,12 @@ snap_dir = os.environ['SNAP']
 snap_common_dir = os.environ['SNAP_COMMON']
 
 print("Running install hook")
+
+for f in glob.glob(os.path.join(snap_dir, 'etc/default/*')):
+    shutil.copy(
+            f,
+            os.path.join(snap_common_dir, 'etc/default')
+        )
 
 #Extract community edition setup
 
@@ -57,7 +64,7 @@ for d in gluu_dirs:
 
 os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
 
-for s in ('opendj', 'apache', 'passport'):
+for s in ('opendj', 'apache', 'passport', 'gluu-radius'):
     os.system('snapctl stop --disable gluu-server.' + s)
 
 

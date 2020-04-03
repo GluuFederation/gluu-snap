@@ -28,16 +28,10 @@ passthrough:
         symlink: $SNAP_COMMON/var/gluu
     /etc/certs:
        symlink: $SNAP_COMMON/etc/certs
-    /etc/default/oxauth:
-       symlink: $SNAP_COMMON/etc/default/oxauth
-    /etc/default/identity:
-       symlink: $SNAP_COMMON/etc/default/identity
-    /etc/default/idp:
-       symlink: $SNAP_COMMON/etc/default/idp
-    /etc/default/passport:
-       symlink: $SNAP_COMMON/etc/default/passport
-    /etc/default/oxauth-rp:
-       symlink: $SNAP_COMMON/etc/default/oxauth-rp
+
+    /etc/default:
+      bind: $SNAP_COMMON/etc/default
+
     /opt/gluu:
       symlink: $SNAP_COMMON/gluu
     /opt/dist:
@@ -232,6 +226,20 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/passport $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
 
+
+  gluu-radius:
+    plugin: dump
+    source: apps/radius
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    override-prime: |
+      snapcraftctl prime
+      if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/dist/scripts" ]; then
+        mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/scripts
+      fi
+      mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
+      chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
+
 apps:
 
   bash:
@@ -376,3 +384,15 @@ apps:
     daemon: forking
     command: gluu-opt/dist/scripts/passport start
     stop-command: gluu-opt/dist/scripts/passport stop
+
+  gluu-radius:
+    plugs:
+     - network
+     - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/gluu-radius start
+    stop-command: gluu-opt/dist/scripts/gluu-radius stop
+
+
+

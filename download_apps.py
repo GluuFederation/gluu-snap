@@ -2,6 +2,8 @@
 import os
 import sys
 import json
+import zipfile
+
 from urllib.request import urlretrieve
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
@@ -27,9 +29,30 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/oxauth-client/{0}{1}/oxauth-client-{0}{1}-jar-with-dependencies.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth/oxauth-client-jar-with-dependencies.jar')
     download('https://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/{0}{1}/oxShibbolethStatic-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/shibboleth-idp.jar')
     download('https://ox.gluu.org/maven/org/gluu/oxshibbolethIdp/{0}{1}/oxshibbolethIdp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/idp.war')
+    download('https://ox.gluu.org/npm/passport/passport-{}.tgz'.format(app_versions['OX_VERSION']), 'passport/passport.tgz')
+    download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['PASSPORT_NODE_VERSON']), 'passport/passport-node_modules.tar.gz')
+    download('https://nodejs.org/dist/{0}/node-{0}-linux-x64.tar.xz'.format(app_versions['NODE_VERSION']), 'node/node.tar.xz')
+
+download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/super-gluu-radius-server.jar')
+download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}-distribution.zip'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/gluu-radius-libs.zip')
 
 
-download('https://ox.gluu.org/npm/passport/passport-{}.tgz'.format(app_versions['OX_VERSION']), 'passport/passport.tgz')
-download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['PASSPORT_NODE_VERSON']), 'passport/passport-node_modules.tar.gz')
-download('https://nodejs.org/dist/{0}/node-{0}-linux-x64.tar.xz'.format(app_versions['NODE_VERSION']), 'node/node.tar.xz')
-download('https://raw.githubusercontent.com/GluuFederation/community-edition-setup/{}/static/system/initd/passport'.format(app_versions['SETUP_BRANCH']), 'passport/passport')
+# we need some files form community-edition-setup.zip
+ces = os.path.join( app_dir, 'setup/community-edition-setup.zip')
+ces_zip = zipfile.ZipFile(ces)
+ces_par_dir = ces_zip.namelist()[0]
+
+def extract_from_ces(src, target_fn):
+    dst = os.path.join(app_dir, target_fn)
+    print("Extracting {} from community-edition-setup.zip to {}".format(src, dst))
+    content = ces_zip.read(os.path.join(ces_par_dir, src))
+    p, f = os.path.split(dst)
+
+    if not os.path.exists(p):
+        os.makedirs(p)
+
+    with open(dst, 'wb') as w:
+        w.write(content)
+
+extract_from_ces('static/system/initd/passport', 'passport/passport')
+extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')
