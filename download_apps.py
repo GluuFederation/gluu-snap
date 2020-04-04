@@ -36,7 +36,6 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}-distribution.zip'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/gluu-radius-libs.zip')
 
     download('https://ox.gluu.org/maven/org/gluu/oxd-server/{0}{1}/oxd-server-{0}{1}-distribution.zip'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxd-server/oxd-server.zip')
-    download('https://raw.githubusercontent.com/GluuFederation/oxd/version_{0}/debian/oxd-server.sh'.format(app_versions['OX_VERSION']), 'oxd-server/start/oxd-server.sh')
 
 
 # we need some files form community-edition-setup.zip
@@ -58,4 +57,4 @@ def extract_from_ces(src, target_fn):
 
 extract_from_ces('static/system/initd/passport', 'passport/passport')
 extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')
-extract_from_ces('static/system/initd/oxd-server', 'oxd-server/start/oxd-server')
+extract_from_ces('static/oxd-server/oxd-server.init', 'oxd-server/start/oxd-server')

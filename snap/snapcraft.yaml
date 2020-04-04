@@ -420,17 +420,6 @@ apps:
      - network
      - network-bind
 
-    environment:
-    
-      OXD_LOGS: "$SNAP_COMMON/gluu/oxd-server/log"
-      CONF: "$SNAP_COMMON/gluu/oxd-server/conf"
-      OXD_HOME: "/opt/oxd-server"
-      OXD_USER: "root"
-      LIB: "$OXD_HOME/lib"
-      OXD_PID_FILE: "$SNAP_COMMON/gluu/oxd-server/run/oxd-server.pid"
-      OXD_RUN: "$SNAP_COMMON/run"
-      OXD_STATE: "$SNAP_COMMON/gluu/oxd-server/run/oxd-server.state"
-
     daemon: forking
     command: gluu-opt/dist/scripts/oxd-server start
     stop-command: gluu-opt/dist/scripts/oxd-server stop
