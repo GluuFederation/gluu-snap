@@ -339,8 +339,6 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-      JETTY_HOME: "/opt/jetty"
-      JETTY_RUN: "/tmp/jetty_temp"
 
     plugs:
      - network
@@ -355,8 +353,6 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-      JETTY_HOME: "/opt/jetty"
-      JETTY_RUN: "/tmp/jetty_temp"
 
     plugs:
      - network
@@ -370,8 +366,6 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-      JETTY_HOME: "/opt/jetty"
-      JETTY_RUN: "/tmp/jetty_temp"
 
     plugs:
      - network
@@ -385,8 +379,6 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-      JETTY_HOME: "/opt/jetty"
-      JETTY_RUN: "/tmp/jetty_temp"
 
     plugs:
      - network

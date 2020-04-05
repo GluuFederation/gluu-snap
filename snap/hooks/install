@@ -38,10 +38,11 @@ shutil.copytree(extract_dir, target_dir)
 
 shutil.rmtree(extract_dir)
 
-jetty_tmp_dir = '/tmp/jetty_temp'
+jetty_tmp_logs_dir = '/tmp/hsperfdata_root/logs'
 
-if not os.path.exists(jetty_tmp_dir):
-    os.mkdir(jetty_tmp_dir)
+if not os.path.exists(jetty_tmp_logs_dir):
+    os.makedirs(jetty_tmp_logs_dir)
+
 
 gluu_dirs = [
     'etc/gluu',
