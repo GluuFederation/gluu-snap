@@ -52,7 +52,6 @@ gluu_dirs = [
     'gluu/bin',
     'gluu/jetty/oxauth',
     'gluu/jetty/identity',
-    'gluu/log/oxd-server',
     'gluu/log/apache2',
     'gluu/run/apache2',
     'run',
@@ -79,7 +78,7 @@ for s in ('opendj', 'apache', 'passport', 'gluu-radius', 'oxd-server'):
     os.system('snapctl stop --disable gluu-server.' + s)
 
 
-jetty_services = ['oxauth', 'identity', 'idp', 'oxauth-rp']
+jetty_services = ['oxauth', 'identity', 'idp', 'oxauth-rp', 'casa']
 
 for service in jetty_services:
     state_fn = os.path.join(snap_common_dir, 'gluu/jetty', service, service+'.state')
@@ -103,3 +102,7 @@ yacron_yaml = os.path.join(snap_common_dir, 'etc/cron-jobs.yaml')
 if not os.path.exists(yacron_yaml):
     open(yacron_yaml,'w').close()
         
+shutil.copy(
+    '/opt/dist/gluu/casa.pub',
+    os.path.join(snap_common_dir, 'etc/certs')
+)

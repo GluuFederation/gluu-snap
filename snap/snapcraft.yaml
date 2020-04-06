@@ -218,6 +218,16 @@ parts:
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/idp
 
+  casa:
+    plugin: dump
+    after: [identity]
+    source: apps/casa
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    override-prime: |
+      snapcraftctl prime
+      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/casa
+
   oxd-server:
     plugin: dump
     source: apps/oxd-server/oxd-server.zip
@@ -387,6 +397,19 @@ apps:
     daemon: forking
     command: gluu-opt/dist/scripts/oxauth-rp start
     stop-command: gluu-opt/dist/scripts/oxauth-rp stop
+
+  casa:
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA: "/opt/jre/bin/java"
+
+    plugs:
+     - network
+     - network-bind
+
+    daemon: forking
+    command: gluu-opt/dist/scripts/casa start
+    stop-command: gluu-opt/dist/scripts/casa stop
 
   passport:
     plugs:
