@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+
+import sys
+
+if '--version' in sys.argv:
+    print("3.10.0")
+    sys.exit()
+
+import os
+import psutil
+import socket
+import time
+import json
+
+disk = '/var/lib/snapd/hostfs' if os.environ.get('SNAP') else '/'
+
+meminfo = psutil.virtual_memory()
+swapinfo = psutil.swap_memory()
+netinfo = psutil.net_if_addrs()
+loadavg = psutil.getloadavg()
+
+
+
+try:
+    testSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ip_addr = [(testSocket.connect(('8.8.8.8', 80)),
+                   testSocket.getsockname()[0],
+                   testSocket.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+except:
+    net_if_list = list(netinfo.keys())
+    if 'lo' in net_if_list:
+        net_if_list.remove('lo')
+    net_if_list.sort()
+    ip_addr = netinfo[net_if_list[0]][0].address
+
+
+hostname = socket.gethostbyaddr(ip_addr)[0]
+try:
+    hostname = socket.gethostbyaddr(ip_addr)[0]
+except:
+    try:
+        hostname = socket.gethostname()
+    except:
+        hostname = ''
+
+
+if '-j' in sys.argv:
+    data = {
+        'memoryfree' : '{:0.2f} MiB'.format(meminfo.free/(1024*1024)),
+        'memoryfree_mb': '{:0.3f}'.format(meminfo.free/(1024*1024)),
+        'memorysize_mb': '{:0.2f}'.format(meminfo.total/(1024*1024)),
+        'swapfree':  '{:0.2f} GiB'.format(swapinfo.free/(1024*1024)),
+        'swapsize': '{:0.2f} GiB'.format(swapinfo.total/(1024*1024)),
+        'hostname': hostname,
+        'ipaddress':ip_addr,
+        'uptime_seconds': int(time.time()-psutil.boot_time()),
+        'free_disk_space': (100-psutil.disk_usage(disk).percent),
+        'load_averages':{
+              '1m': loadavg[0],
+              '5m': loadavg[1],
+              '15m': loadavg[2],
+            }
+        }
+
+
+    print(json.dumps(data, indent=2))
+
+else:
+
+    data = '''memoryfree => {0:0.2f} MiB
+memoryfree_mb => {0:0.3f}
+memorysize_mb => {1:0.2f}
+swapfree => {2:0.2f} GiB
+swapsize => {3:0.2f} GiB
+hostname => {4}
+ipaddress => {5}
+uptime_seconds => {6}
+free_disk_space => {7}
+load_averages => {{
+  15m => {8},
+  1m => {9},
+  5m => {10}
+}}
+
+'''.format(
+    meminfo.free/(1024*1024),
+    meminfo.total/(1024*1024),
+    swapinfo.free/(1024*1024),
+    swapinfo.total/(1024*1024),
+    hostname,
+    ip_addr,
+    int(time.time()-psutil.boot_time()),
+    (100-psutil.disk_usage(disk).percent),
+    loadavg[2],
+    loadavg[0],
+    loadavg[1],
+)
+
+
+    print(data)

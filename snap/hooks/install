@@ -106,3 +106,5 @@ shutil.copy(
     '/opt/dist/gluu/casa.pub',
     os.path.join(snap_common_dir, 'etc/certs')
 )
+
+

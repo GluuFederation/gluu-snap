@@ -48,7 +48,8 @@ passthrough:
       bind-file: $SNAP/etc/ssl/openssl.cnf
     /opt/shibboleth-idp:
       symlink: $SNAP_COMMON/gluu/shibboleth-idp
-
+    /usr/bin/facter:
+      symlink: $SNAP/usr/bin/facter
 
 parts:
 
@@ -57,12 +58,7 @@ parts:
     stage-packages:
       - bash
       - sed
-      - python3
-      - python3-ldap
-      - python3-ldap3
-      - python3-requests
       - openssl
-      - python3-pip
       #followings are for opendj
       - libpam-cap
       - libcap2-bin
@@ -70,18 +66,37 @@ parts:
       - dpkg
       - coreutils
       - login
-      
+
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
 
+  python:
+    after: [base-system]
+    plugin: python
+    stage-packages:
+      - python3
+      - python3-pip
+      - python3-ldap
+      - python3-ldap3
+      - python3-requests
+    python-packages:
+     - pyyaml
+     - psutil
+     
   yacron:
    after: [base-system]
    plugin: python
    python-packages:
      - yacron
-     - pyyaml
-   
+
+
+  facter:
+    plugin: dump
+    source: facter
+    source-type: local
+    organize:
+      "*" : /usr/bin/
 
   apache2:
     after: [base-system]
@@ -276,10 +291,16 @@ apps:
     plugs:
      - network
      - network-bind
+     - network-observe
+     - block-devices
+     - mount-observe
+     - system-observe
+     
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA_BIN: "/opt/jre/bin/java"
       OPENDJ_JAVA_HOME: "/opt/jre"
+      PYTHONWARNINGS: "ignore"
     command: bin/bash
 
   yacron:
@@ -325,6 +346,8 @@ apps:
     plugs:
      - network
      - network-bind
+     - mount-observe
+     
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA_BIN: "/opt/jre/bin/java"
@@ -363,10 +386,15 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      PYTHONWARNINGS: "ignore"
 
     plugs:
      - network
      - network-bind
+     - network-observe
+     - block-devices
+     - mount-observe
+     - system-observe
 
     daemon: forking
     command: gluu-opt/dist/scripts/identity start
