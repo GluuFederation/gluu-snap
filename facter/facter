@@ -34,7 +34,6 @@ except:
     ip_addr = netinfo[net_if_list[0]][0].address
 
 
-hostname = socket.gethostbyaddr(ip_addr)[0]
 try:
     hostname = socket.gethostbyaddr(ip_addr)[0]
 except:
