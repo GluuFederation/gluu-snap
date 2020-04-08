@@ -53,7 +53,7 @@ if '-j' in sys.argv:
         'hostname': hostname,
         'ipaddress':ip_addr,
         'uptime_seconds': int(time.time()-psutil.boot_time()),
-        'free_disk_space': (100-psutil.disk_usage(disk).percent),
+        'free_disk_space': round((100-psutil.disk_usage(disk).percent), 1),
         'load_averages':{
               '1m': loadavg[0],
               '5m': loadavg[1],
@@ -74,7 +74,7 @@ swapsize => {3:0.2f} GiB
 hostname => {4}
 ipaddress => {5}
 uptime_seconds => {6}
-free_disk_space => {7}
+free_disk_space => {7:0.1f}
 load_averages => {{
   15m => {8},
   1m => {9},
