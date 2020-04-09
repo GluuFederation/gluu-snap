@@ -58,4 +58,5 @@ $ sudo gluu-server.setup
 Setup will continue as usual. Please note that you will be asked to install only implemented services.
 
 # Notes
-* CentOS users need to enable **snapd.socket** You can do this with: `sudo systemctl enable --now snapd.socket`
+* CentOS/RHEL users need to enable **snapd.socket** You can do this with: `sudo systemctl enable --now snapd.socket`
+* CentOS/RHEL users need to execute this command: ln -s /var/lib/snapd/snap /snap
