@@ -30,10 +30,8 @@ passthrough:
         symlink: $SNAP_COMMON/var/gluu
     /etc/certs:
        symlink: $SNAP_COMMON/etc/certs
-
     /etc/default:
       bind: $SNAP_COMMON/etc/default
-
     /opt/gluu:
       symlink: $SNAP_COMMON/gluu
     /opt/dist:
@@ -66,7 +64,6 @@ parts:
       - dpkg
       - coreutils
       - login
-
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
@@ -89,7 +86,6 @@ parts:
    plugin: python
    python-packages:
      - yacron
-
 
   facter:
     plugin: dump
@@ -122,6 +118,7 @@ parts:
     after: [base-system]
     plugin: dump
     source: apps/corretto/amazon-corretto.tar.gz
+    source-type: tar
     organize:
       "*" : gluu-opt/jre/
     stage-packages:
@@ -148,7 +145,6 @@ parts:
       - libthai0
       - libxcb-render0
       - libxcb-shm0
-
     override-prime: |
       snapcraftctl prime
       if [ -f "$SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts" ]; then
@@ -156,10 +152,10 @@ parts:
         ln -s /var/snap/gluu-server/common/etc/certs/java-cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts
       fi
 
-
   jetty:
     plugin: dump
     source: apps/jetty/jetty.tar.gz
+    source-type: tar
     organize:
       "*" : gluu-opt/jetty/
 
@@ -180,6 +176,7 @@ parts:
   node:
     plugin: dump
     source: apps/node/node.tar.xz
+    source-type: tar
     organize:
       "*" : gluu-opt/node
 
@@ -210,6 +207,7 @@ parts:
     plugin: dump
     after: [oxauth]
     source: apps/identity
+    source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
     override-prime: |
@@ -227,6 +225,7 @@ parts:
     plugin: dump
     after: [identity]
     source: apps/idp
+    source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
     override-prime: |
@@ -237,6 +236,7 @@ parts:
     plugin: dump
     after: [identity]
     source: apps/casa
+    source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
     override-prime: |
@@ -246,6 +246,7 @@ parts:
   oxd-server:
     plugin: dump
     source: apps/oxd-server/oxd-server.zip
+    source-type: zip
     organize:
       "*" : /gluu-opt/oxd-server
 
@@ -259,10 +260,10 @@ parts:
       snapcraftctl prime
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
 
-
   passport:
     plugin: dump
     source: apps/passport
+    source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
     override-prime: |
@@ -270,10 +271,10 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/passport $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
 
-
   gluu-radius:
     plugin: dump
     source: apps/radius
+    source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
     override-prime: |
@@ -284,7 +285,6 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
 
-
 apps:
 
   bash:
@@ -294,8 +294,7 @@ apps:
      - network-observe
      - block-devices
      - mount-observe
-     - system-observe
-     
+     - system-observe 
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA_BIN: "/opt/jre/bin/java"
@@ -327,7 +326,6 @@ apps:
       APACHE_RUN_DIR:   "/opt/gluu/run/apache2"
       APACHE_LOCK_DIR:  "/opt/gluu/run/apache2"
       APACHE_LOG_DIR:   "/opt/gluu/log/apache2"
-
     command: usr/sbin/apache2 -d $SNAP_COMMON/etc/apache2 -k start
     stop-command: usr/sbin/apache2 -d $SNAP_COMMON/etc/apache2 -k stop
     daemon: forking
@@ -341,19 +339,16 @@ apps:
       JAVA_HOME: "/opt/jre"
     command: gluu-opt/jre/bin/java  -jar $SNAP/gluu-opt/jython/jython.jar
 
-
   opendj-setup:
     plugs:
      - network
      - network-bind
-     - mount-observe
-     
+     - mount-observe 
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA_BIN: "/opt/jre/bin/java"
       OPENDJ_JAVA_HOME: "/opt/jre"
     command: gluu-opt/opendj/setup
-
 
   opendj:
     environment:
@@ -367,27 +362,22 @@ apps:
     command: gluu-opt/opendj/bin/start-ds
     stop-command: gluu-opt/opendj/bin/stop-ds
 
-
   oxauth:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/oxauth start
     stop-command: gluu-opt/dist/scripts/oxauth stop
-
 
   identity:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       PYTHONWARNINGS: "ignore"
-
     plugs:
      - network
      - network-bind
@@ -395,7 +385,6 @@ apps:
      - block-devices
      - mount-observe
      - system-observe
-
     daemon: forking
     command: gluu-opt/dist/scripts/identity start
     stop-command: gluu-opt/dist/scripts/identity stop
@@ -404,11 +393,9 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/idp start
     stop-command: gluu-opt/dist/scripts/idp stop
@@ -417,11 +404,9 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/oxauth-rp start
     stop-command: gluu-opt/dist/scripts/oxauth-rp stop
@@ -430,11 +415,9 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
-
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/casa start
     stop-command: gluu-opt/dist/scripts/casa stop
@@ -443,7 +426,6 @@ apps:
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/passport start
     stop-command: gluu-opt/dist/scripts/passport stop
@@ -452,20 +434,14 @@ apps:
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/gluu-radius start
     stop-command: gluu-opt/dist/scripts/gluu-radius stop
-
 
   oxd-server:
     plugs:
      - network
      - network-bind
-
     daemon: forking
     command: gluu-opt/dist/scripts/oxd-server start
     stop-command: gluu-opt/dist/scripts/oxd-server stop
-    
-
-
