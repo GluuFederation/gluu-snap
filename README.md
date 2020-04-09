@@ -35,11 +35,21 @@ $ snapcraft
 This will build snap packaged `gluu-server_<version>_amd64.snap` in current directory. 
 
 # Install gluu-server Snap Package
-To install snap package you need snapd package installed on your machine. First install **snap** (If you build yourself, you have done this in the prvious step):
+## Ubuntu 18
+To install snap software on Ubuntu you need snapd package installed on your machine. First install **snap** (If you build yourself, you have done this in the prvious step):
 
 ```
 $ sudo apt update
 $ sudo apt install snapd
+```
+
+## CentOS 7
+
+```
+$ sudo yum install epel-release
+$ sudo yum -y install snapd
+$ sudo ln -s /var/lib/snapd/snap /snap
+$ sudo systemctl enable --now snapd.socket
 ```
 
 If you did not build gluu-server snap package yourself, download latest version of experimental gluu-snap package from https://repo.gluu.org/snaps/
@@ -56,7 +66,3 @@ $ sudo gluu-server.setup
 ```
 
 Setup will continue as usual. Please note that you will be asked to install only implemented services.
-
-# Notes
-* CentOS/RHEL users need to enable **snapd.socket** You can do this with: `sudo systemctl enable --now snapd.socket`
-* CentOS/RHEL users need to execute this command: ln -s /var/lib/snapd/snap /snap
