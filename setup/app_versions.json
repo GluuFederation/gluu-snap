@@ -7,7 +7,7 @@
   "OPENDJ_VERSION": "4.0.0-M3",
   "NODE_VERSION": "v12.6.0",
   "SETUP_BRANCH": "version_4.1.snap",
-  "PASSPORT_NODE_VERSON": "4.1.1",
+  "PASSPORT_NODE_VERSON": "4.1.0",
   "TWILIO_VERSION": "7.17.0",
   "JSMPP_VERSION": "2.3.7"
 }
