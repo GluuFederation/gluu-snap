@@ -178,7 +178,7 @@ parts:
     source: apps/node/node.tar.xz
     source-type: tar
     organize:
-      "*" : gluu-opt/node
+      "*" : gluu-opt/node/
 
   opendj:
     after: [jython]
@@ -248,7 +248,7 @@ parts:
     source: apps/oxd-server/oxd-server.zip
     source-type: zip
     organize:
-      "*" : /gluu-opt/oxd-server
+      "*" : /gluu-opt/oxd-server/
 
   oxd-server-start:
     plugin: dump
