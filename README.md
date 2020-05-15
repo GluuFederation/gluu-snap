@@ -57,7 +57,7 @@ $ sudo systemctl enable --now snapd.socket
 ## Install Gluu Server
 
 If you did not build gluu-server snap package yourself, download latest version of experimental gluu-snap package from https://repo.gluu.org/snaps/
-Install gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
+Installing gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
 
 ```
 $ sudo snap install gluu-server_<version>_amd64.snap --dangerous
