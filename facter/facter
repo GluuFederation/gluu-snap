@@ -7,32 +7,69 @@ if '--version' in sys.argv:
     sys.exit()
 
 import os
-import psutil
 import socket
 import time
 import json
+import shutil
+import socket
+import struct
+import fcntl
+import ctypes
+import struct
 
-disk = '/var/lib/snapd/hostfs' if os.environ.get('SNAP') else '/'
+disk = os.environ.get('SNAP_COMMON', '/')
 
-meminfo = psutil.virtual_memory()
-swapinfo = psutil.swap_memory()
-netinfo = psutil.net_if_addrs()
-loadavg = psutil.getloadavg()
+loadavg = os. getloadavg()
+du=shutil.disk_usage(disk)
+free_disk_space = round((du.free/du.total) * 100, 1)
 
+libc = ctypes.CDLL('libc.so.6')
+buf = ctypes.create_string_buffer(4096)
+libc.sysinfo(buf)
+uptime = struct.unpack_from('@l', buf.raw)[0]
+
+memoryfree = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_AVPHYS_PAGES') / (1024.0**2)
+memorysize = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') / (1024.**2)
+
+swapsize = 0
+swapfree = 0
+with open('/proc/meminfo') as f:
+    for l in f:
+        if l.startswith('SwapTotal'):
+            swapsize = int(l.split(':')[1].split()[0]) / 1024.0
+        elif l.startswith('SwapFree'):
+            swapfree = int(l.split(':')[1].split()[0]) / 1024.0
 
 
 try:
-    testSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    ip_addr = [(testSocket.connect(('8.8.8.8', 80)),
-                   testSocket.getsockname()[0],
-                   testSocket.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_addr = s.getsockname()[0]
+    
 except:
-    net_if_list = list(netinfo.keys())
-    if 'lo' in net_if_list:
-        net_if_list.remove('lo')
-    net_if_list.sort()
-    ip_addr = netinfo[net_if_list[0]][0].address
-
+    try:
+        net_if_list = socket.if_nameindex()
+        
+        for netif in net_if_list[:]:
+            if netif[0] == 'lo':
+                net_if_list
+        for netif in net_if_list:
+            if netif[1].startswith('enp') or netif[1].startswith('eth'):
+                iface = netif[1]
+                break
+        else:
+            net_if_list.sort()
+            iface = net_if_list[0][1]    
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sockfd = sock.fileno()
+        SIOCGIFADDR = 0x8915
+        ifreq = struct.pack(b'16sH14s', iface.encode(), socket.AF_INET, b'\x00'*14)
+        res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq) 
+        ip = struct.unpack('16sH2x4s8x', res)[2]
+        ip_addr = socket.inet_ntoa(ip)
+    
+    except:
+        ip_addr = ''
 
 try:
     hostname = socket.gethostbyaddr(ip_addr)[0]
@@ -45,15 +82,15 @@ except:
 
 if '-j' in sys.argv:
     data = {
-        'memoryfree' : '{:0.2f} MiB'.format(meminfo.free/(1024*1024)),
-        'memoryfree_mb': '{:0.3f}'.format(meminfo.free/(1024*1024)),
-        'memorysize_mb': '{:0.2f}'.format(meminfo.total/(1024*1024)),
-        'swapfree':  '{:0.2f} GiB'.format(swapinfo.free/(1024*1024)),
-        'swapsize': '{:0.2f} GiB'.format(swapinfo.total/(1024*1024)),
+        'memoryfree' : '{:0.2f} MiB'.format(memoryfree),
+        'memoryfree_mb': '{:0.3f}'.format(memoryfree),
+        'memorysize_mb': '{:0.2f}'.format(memorysize),
+        'swapfree':  '{:0.2f} GiB'.format(swapfree),
+        'swapsize': '{:0.2f} GiB'.format(swapsize),
         'hostname': hostname,
         'ipaddress':ip_addr,
-        'uptime_seconds': int(time.time()-psutil.boot_time()),
-        'free_disk_space': round((100-psutil.disk_usage(disk).percent), 1),
+        'uptime_seconds': uptime,
+        'free_disk_space': free_disk_space,
         'load_averages':{
               '1m': loadavg[0],
               '5m': loadavg[1],
@@ -82,14 +119,14 @@ load_averages => {{
 }}
 
 '''.format(
-    meminfo.free/(1024*1024),
-    meminfo.total/(1024*1024),
-    swapinfo.free/(1024*1024),
-    swapinfo.total/(1024*1024),
+    memoryfree,
+    memorysize,
+    swapfree,
+    swapsize,
     hostname,
     ip_addr,
-    int(time.time()-psutil.boot_time()),
-    (100-psutil.disk_usage(disk).percent),
+    uptime,
+    free_disk_space,
     loadavg[2],
     loadavg[0],
     loadavg[1],
