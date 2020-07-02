@@ -19,10 +19,10 @@ disk = os.environ.get('SNAP_COMMON', '/')
 loadavg = os. getloadavg()
 du=shutil.disk_usage(disk)
 free_disk_space = '{}%'.format(round((du.free/du.total) * 100, 1))
-swapsize = 0
+swapsize = 1
 swapfree = 0
 memoryfree = 0
-memorysize = 0
+memorysize = 1
 
 with open('/proc/meminfo') as f:
     for l in f:
@@ -46,7 +46,7 @@ try:
 except:
     try:
         net_if_list = socket.if_nameindex()
-        
+
         for netif in net_if_list[:]:
             if netif[0] == 'lo':
                 net_if_list
