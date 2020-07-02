@@ -18,7 +18,7 @@ disk = os.environ.get('SNAP_COMMON', '/')
 
 loadavg = os. getloadavg()
 du=shutil.disk_usage(disk)
-free_disk_space = round((du.free/du.total) * 100, 1)
+free_disk_space = '{}%'.format(round((du.free/du.total) * 100, 1))
 swapsize = 0
 swapfree = 0
 memoryfree = 0
@@ -76,17 +76,23 @@ except:
     except:
         hostname = ''
 
+memfree_p = '{}%' .format(round((memoryfree/memorysize)*100, 1))
+swapfree_p = '{}%'.format(round((swapfree/swapsize)*100, 1))
+
+
+d, h = divmod(uptime, 86400)
+h, m = divmod(h, 3600)
+m, s = divmod(m, 60)
+
+uptime_s = '{} d {} h {} m {} s'.format(d, h, m, s)
 
 if '-j' in sys.argv:
     data = {
-        'memoryfree' : '{:0.2f} MiB'.format(memoryfree),
-        'memoryfree_mb': '{:0.3f}'.format(memoryfree),
-        'memorysize_mb': '{:0.2f}'.format(memorysize),
-        'swapfree':  '{:0.2f} GiB'.format(swapfree),
-        'swapsize': '{:0.2f} GiB'.format(swapsize),
+        'memoryfree' : memfree_p,
+        'swapfree':  swapfree_p,
         'hostname': hostname,
         'ipaddress':ip_addr,
-        'uptime_seconds': uptime,
+        'uptime': uptime_s,
         'free_disk_space': free_disk_space,
         'load_average': loadavg[2],
         }
@@ -96,27 +102,21 @@ if '-j' in sys.argv:
 
 else:
 
-    data = '''memoryfree => {0:0.2f} MiB
-memoryfree_mb => {0:0.3f}
-memorysize_mb => {1:0.2f}
-swapfree => {2:0.2f} GiB
-swapsize => {3:0.2f} GiB
-hostname => {4}
-ipaddress => {5}
-uptime_seconds => {6}
-free_disk_space => {7:0.1f}
-load_average => {8}
+    data = '''memoryfree => {0}
+swapfree => {1}
+hostname => {2}
+ipaddress => {3}
+uptime => {4}
+free_disk_space => {5}
+load_average => {6}
 '''.format(
-    memoryfree,
-    memorysize,
-    swapfree,
-    swapsize,
+    memfree_p,
+    swapfree_p,
     hostname,
     ip_addr,
-    uptime,
+    uptime_s,
     free_disk_space,
     loadavg[2],
 )
-
 
     print(data)
