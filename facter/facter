@@ -88,12 +88,18 @@ except:
 memfree_p = '{}%' .format(round((memoryfree/memorysize)*100, 1))
 swapfree_p = '{}%'.format(round((swapfree/swapsize)*100, 1))
 
-
 d, h = divmod(uptime, 86400)
 h, m = divmod(h, 3600)
 m, s = divmod(m, 60)
 
-uptime_s = '{} d {} h {} m {} s'.format(d, h, m, s)
+if not d:
+    day_s = ''
+elif d == 1:
+    day_s = '1 day, '
+else:
+    day_s = '{} days, '.format(d)
+
+uptime_s = '{}{}:{:02d}'.format(day_s, h, m, s)
 
 if '-j' in sys.argv:
     data = {
@@ -117,8 +123,7 @@ hostname => {2}
 ipaddress => {3}
 uptime => {4}
 free_disk_space => {5}
-load_average => {6}
-'''.format(
+load_average => {6}'''.format(
     memfree_p,
     swapfree_p,
     hostname,
