@@ -14,7 +14,6 @@ import shutil
 import socket
 import struct
 import fcntl
-import ctypes
 import struct
 
 disk = os.environ.get('SNAP_COMMON', '/')
@@ -23,23 +22,24 @@ loadavg = os. getloadavg()
 du=shutil.disk_usage(disk)
 free_disk_space = round((du.free/du.total) * 100, 1)
 
-libc = ctypes.CDLL('libc.so.6')
-buf = ctypes.create_string_buffer(4096)
-libc.sysinfo(buf)
-uptime = struct.unpack_from('@l', buf.raw)[0]
-
-memoryfree = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_AVPHYS_PAGES') / (1024.0**2)
-memorysize = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') / (1024.**2)
-
 swapsize = 0
 swapfree = 0
+memoryfree = 0
+memorysize = 0
+
 with open('/proc/meminfo') as f:
     for l in f:
         if l.startswith('SwapTotal'):
             swapsize = int(l.split(':')[1].split()[0]) / 1024.0
         elif l.startswith('SwapFree'):
             swapfree = int(l.split(':')[1].split()[0]) / 1024.0
+        elif l.startswith('MemTotal'):
+            memorysize = int(l.split(':')[1].split()[0]) / 1024.0
+        elif l.startswith('MemFree'):
+            memoryfree = int(l.split(':')[1].split()[0]) / 1024.0
 
+with open('/proc/uptime') as f:
+    uptime = int(float(f.read().strip().split()[0]))
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
