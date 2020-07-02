@@ -27,8 +27,8 @@ uptime = 0
 ip_addr = ''
 hostname = ''
 
-with open('/proc/meminfo') as f:
-    try:
+try:
+    with open('/proc/meminfo') as f:
         for l in f:
             if l.startswith('SwapTotal'):
                 swapsize = int(l.split(':')[1].split()[0]) / 1024.0
@@ -38,8 +38,8 @@ with open('/proc/meminfo') as f:
                 memorysize = int(l.split(':')[1].split()[0]) / 1024.0
             elif l.startswith('MemFree'):
                 memoryfree = int(l.split(':')[1].split()[0]) / 1024.0
-    except:
-        pass
+except:
+    pass
 
 try:
     with open('/proc/uptime') as f:
