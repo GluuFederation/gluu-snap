@@ -23,20 +23,29 @@ swapsize = 1
 swapfree = 0
 memoryfree = 0
 memorysize = 1
+uptime = 0
+ip_addr = ''
+hostname = ''
 
 with open('/proc/meminfo') as f:
-    for l in f:
-        if l.startswith('SwapTotal'):
-            swapsize = int(l.split(':')[1].split()[0]) / 1024.0
-        elif l.startswith('SwapFree'):
-            swapfree = int(l.split(':')[1].split()[0]) / 1024.0
-        elif l.startswith('MemTotal'):
-            memorysize = int(l.split(':')[1].split()[0]) / 1024.0
-        elif l.startswith('MemFree'):
-            memoryfree = int(l.split(':')[1].split()[0]) / 1024.0
+    try:
+        for l in f:
+            if l.startswith('SwapTotal'):
+                swapsize = int(l.split(':')[1].split()[0]) / 1024.0
+            elif l.startswith('SwapFree'):
+                swapfree = int(l.split(':')[1].split()[0]) / 1024.0
+            elif l.startswith('MemTotal'):
+                memorysize = int(l.split(':')[1].split()[0]) / 1024.0
+            elif l.startswith('MemFree'):
+                memoryfree = int(l.split(':')[1].split()[0]) / 1024.0
+    except:
+        pass
 
-with open('/proc/uptime') as f:
-    uptime = int(float(f.read().strip().split()[0]))
+try:
+    with open('/proc/uptime') as f:
+        uptime = int(float(f.read().strip().split()[0]))
+except:
+    pass
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -66,7 +75,7 @@ except:
         ip_addr = socket.inet_ntoa(ip)
     
     except:
-        ip_addr = ''
+        pass
 
 try:
     hostname = socket.gethostbyaddr(ip_addr)[0]
@@ -74,7 +83,7 @@ except:
     try:
         hostname = socket.gethostname()
     except:
-        hostname = ''
+        pass
 
 memfree_p = '{}%' .format(round((memoryfree/memorysize)*100, 1))
 swapfree_p = '{}%'.format(round((swapfree/swapsize)*100, 1))
