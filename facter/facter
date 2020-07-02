@@ -19,7 +19,6 @@ disk = os.environ.get('SNAP_COMMON', '/')
 loadavg = os. getloadavg()
 du=shutil.disk_usage(disk)
 free_disk_space = round((du.free/du.total) * 100, 1)
-
 swapsize = 0
 swapfree = 0
 memoryfree = 0
@@ -89,11 +88,7 @@ if '-j' in sys.argv:
         'ipaddress':ip_addr,
         'uptime_seconds': uptime,
         'free_disk_space': free_disk_space,
-        'load_averages':{
-              '1m': loadavg[0],
-              '5m': loadavg[1],
-              '15m': loadavg[2],
-            }
+        'load_average': loadavg[2],
         }
 
 
@@ -110,12 +105,7 @@ hostname => {4}
 ipaddress => {5}
 uptime_seconds => {6}
 free_disk_space => {7:0.1f}
-load_averages => {{
-  15m => {8},
-  1m => {9},
-  5m => {10}
-}}
-
+load_average => {8}
 '''.format(
     memoryfree,
     memorysize,
@@ -126,8 +116,6 @@ load_averages => {{
     uptime,
     free_disk_space,
     loadavg[2],
-    loadavg[0],
-    loadavg[1],
 )
 
 
