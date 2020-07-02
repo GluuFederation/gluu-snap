@@ -79,8 +79,7 @@ parts:
       - python3-requests
     python-packages:
      - pyyaml
-     - psutil
-     
+
   yacron:
    after: [base-system]
    plugin: python
@@ -292,7 +291,6 @@ apps:
      - network
      - network-bind
      - network-observe
-     - block-devices
      - mount-observe
      - system-observe 
     environment:
@@ -382,7 +380,6 @@ apps:
      - network
      - network-bind
      - network-observe
-     - block-devices
      - mount-observe
      - system-observe
     daemon: forking
