@@ -56,10 +56,10 @@ except:
     pass
 
 try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip_addr = s.getsockname()[0]
-    
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect(("8.8.8.8", 80))
+    ip_addr = sock.getsockname()[0]
+    sock.close()
 except:
     try:
         net_if_list = socket.if_nameindex()
@@ -81,6 +81,7 @@ except:
         res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq) 
         ip = struct.unpack('16sH2x4s8x', res)[2]
         ip_addr = socket.inet_ntoa(ip)
+        sock.close()
     except:
         pass
 
