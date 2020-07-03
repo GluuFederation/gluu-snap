@@ -16,9 +16,17 @@ import struct
 
 disk = os.environ.get('SNAP_COMMON', '/')
 
-loadavg = os. getloadavg()
-du=shutil.disk_usage(disk)
-free_disk_space = '{}%'.format(round((du.free/du.total) * 100, 1))
+try:
+    loadavg = os. getloadavg()
+except:
+    loadavg = (0,0,0)
+
+try:
+    du=shutil.disk_usage(disk)
+    free_disk_space = '{}%'.format(round((du.free/du.total) * 100, 1))
+except:
+    free_disk_space = '0%'
+
 swapsize = 1
 swapfree = 0
 memoryfree = 0
@@ -73,7 +81,6 @@ except:
         res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq) 
         ip = struct.unpack('16sH2x4s8x', res)[2]
         ip_addr = socket.inet_ntoa(ip)
-    
     except:
         pass
 
@@ -112,11 +119,9 @@ if '-j' in sys.argv:
         'load_average': loadavg[2],
         }
 
-
     print(json.dumps(data, indent=2))
 
 else:
-
     data = '''memoryfree => {0}
 swapfree => {1}
 hostname => {2}
@@ -132,5 +137,4 @@ load_average => {6}'''.format(
     free_disk_space,
     loadavg[2],
 )
-
     print(data)
