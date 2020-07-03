@@ -19,7 +19,7 @@ def download(url, target_fn):
     urlretrieve(url, dst)
 
 if not '-e' in sys.argv:
-    download('https://d3pxv6yz143wms.cloudfront.net/{0}/amazon-corretto-{0}-linux-x64.tar.gz'.format(app_versions['AMAZON_CORRETTO_VERSION']), 'corretto/amazon-corretto.tar.gz')
+    download('https://corretto.aws/downloads/latest/amazon-corretto-{0}-x64-linux-jdk.tar.gz'.format(app_versions['AMAZON_CORRETTO_VERSION']), 'corretto/amazon-corretto.tar.gz')
     download('https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/{0}/jetty-distribution-{0}.tar.gz'.format(app_versions['JETTY_VERSION']), 'jetty/jetty.tar.gz')
     download('https://repo1.maven.org/maven2/org/python/jython-installer/{0}/jython-installer-{0}.jar'.format(app_versions['JYTHON_VERSION']), 'jython/jython-installer.jar')
     download('https://ox.gluu.org/maven/org/gluu/oxauth-server/{0}{1}/oxauth-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth/oxauth.war')
@@ -30,7 +30,7 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/{0}{1}/oxShibbolethStatic-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/shibboleth-idp.jar')
     download('https://ox.gluu.org/maven/org/gluu/oxshibbolethIdp/{0}{1}/oxshibbolethIdp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/idp.war')
     download('https://ox.gluu.org/npm/passport/passport-{}.tgz'.format(app_versions['OX_VERSION']), 'passport/passport.tgz')
-    download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['PASSPORT_NODE_VERSON']), 'passport/passport-node_modules.tar.gz')
+    download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['PASSPORT_NODE_VERSION']), 'passport/passport-node_modules.tar.gz')
     download('https://nodejs.org/dist/{0}/node-{0}-linux-x64.tar.xz'.format(app_versions['NODE_VERSION']), 'node/node.tar.xz')
     download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/super-gluu-radius-server.jar')
     download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}-distribution.zip'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/gluu-radius-libs.zip')
