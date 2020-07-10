@@ -44,7 +44,7 @@ try:
                 swapfree = int(l.split(':')[1].split()[0]) / 1024.0
             elif l.startswith('MemTotal'):
                 memorysize = int(l.split(':')[1].split()[0]) / 1024.0
-            elif l.startswith('MemFree'):
+            elif l.startswith('MemAvailable'):
                 memoryfree = int(l.split(':')[1].split()[0]) / 1024.0
 except:
     pass
