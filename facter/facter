@@ -93,6 +93,9 @@ except:
     except:
         pass
 
+if swapsize == 0:
+    swapsize = 1
+
 memfree_p = '{}%' .format(round((memoryfree/memorysize)*100, 1))
 swapfree_p = '{}%'.format(round((swapfree/swapsize)*100, 1))
 
