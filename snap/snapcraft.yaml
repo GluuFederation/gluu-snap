@@ -90,7 +90,6 @@ parts:
       - python3-requests
       - python3-wheel
     python-packages:
-      - wheel
       - yacron
       - npyscreen
 
