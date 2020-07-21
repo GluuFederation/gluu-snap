@@ -93,7 +93,7 @@ parts:
 
   facter:
     plugin: dump
-    source: facter
+    source: apps/facter
     source-type: local
     organize:
       "*" : /usr/bin/
@@ -362,6 +362,7 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/oxauth/run"
     plugs:
      - network
      - network-bind
@@ -373,6 +374,7 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/identity/run"
       PYTHONWARNINGS: "ignore"
     plugs:
      - network
@@ -388,6 +390,7 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/idp/run"
     plugs:
      - network
      - network-bind
@@ -399,6 +402,7 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/oxauth-rp/run"
     plugs:
      - network
      - network-bind
@@ -410,6 +414,7 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/casa/run"
     plugs:
      - network
      - network-bind

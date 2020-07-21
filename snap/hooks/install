@@ -50,6 +50,7 @@ gluu_dirs = [
     'etc/certs',
     'etc/default',
     'gluu/bin',
+    'gluu/jetty/temp',
     'gluu/jetty/oxauth',
     'gluu/jetty/identity',
     'gluu/log/apache2',
