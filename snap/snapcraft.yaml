@@ -7,11 +7,10 @@ description: |
 
 grade: stable
 confinement: strict
-base: core18
+base: core20
 
-passthrough:
 
-  layout:
+layout:
     /opt/jre:
       symlink: $SNAP/gluu-opt/jre
     /opt/jetty:
@@ -40,6 +39,8 @@ passthrough:
       symlink: $SNAP/usr/lib/apache2
     /usr/share/apache2:
       symlink: $SNAP/usr/share/apache2
+    /etc/apache2:
+      symlink: $SNAP_COMMON/etc/apache2
     /var/www/html:
       symlink: $SNAP_COMMON/var/www/html
     /etc/ssl/openssl.cnf:
@@ -56,6 +57,7 @@ parts:
     stage-packages:
       - bash
       - sed
+      - cron
       - openssl
       #followings are for opendj
       - libpam-cap
@@ -64,9 +66,17 @@ parts:
       - dpkg
       - coreutils
       - login
+      - unzip
+
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
+      rm -r -f $SNAPCRAFT_PRIME/etc/cron.d
+      rm -r -f $SNAPCRAFT_PRIME/cron.hourly
+      rm -r -f $SNAPCRAFT_PRIME/cron.daily
+      rm -r -f $SNAPCRAFT_PRIME/cron.weekly
+      rm -r -f $SNAPCRAFT_PRIME/cron.monthly
+
 
   python:
     after: [base-system]
@@ -74,17 +84,12 @@ parts:
     stage-packages:
       - python3
       - python3-pip
-      - python3-ldap
       - python3-ldap3
       - python3-requests
     python-packages:
-     - pyyaml
-
-  yacron:
-   after: [base-system]
-   plugin: python
-   python-packages:
-     - yacron
+      - wheel
+      - yacron
+      - npyscreen
 
   facter:
     plugin: dump
@@ -93,18 +98,26 @@ parts:
     organize:
       "*" : /usr/bin/
 
+  opendj:
+    after: [jython]
+    plugin: dump
+    source: apps/opendj/opendj-server.zip
+    source-type: zip
+    organize:
+      '*' : gluu-opt/
+    override-prime: |
+      snapcraftctl prime
+      echo "/var/snap/$SNAPCRAFT_PROJECT_NAME/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
+
+
   apache2:
     after: [base-system]
     plugin: nil
     stage-packages:
       - apache2
-
-  setup-starter:
-    plugin: dump
-    source: setup/starter
-    source-type: local
-    organize:
-      "*" : bin/
+    override-prime: |
+      snapcraftctl prime
+      mv $SNAPCRAFT_PRIME/etc/apache2 $SNAPCRAFT_PRIME/etc/apache2.org
 
   community-edition-setup:
     plugin: dump
@@ -146,7 +159,12 @@ parts:
       - libxcb-shm0
     override-prime: |
       snapcraftctl prime
-      if [ -f "$SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts" ]; then
+
+      if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jre/jre" ]; then
+        mkdir $SNAPCRAFT_PRIME/gluu-opt/jre/jre
+        ln -s $SNAPCRAFT_PRIME/gluu-opt/jre/lib $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib
+      fi
+      if [ ! -f "$SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak" ]; then
         mv $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak
         ln -s /var/snap/gluu-server/common/etc/certs/java-cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts
       fi
@@ -178,17 +196,6 @@ parts:
     source-type: tar
     organize:
       "*" : gluu-opt/node/
-
-  opendj:
-    after: [jython]
-    plugin: dump
-    source: apps/opendj/opendj-server.zip
-    source-type: zip
-    organize:
-      '*' : gluu-opt/
-    override-prime: |
-      snapcraftctl prime
-      echo "/var/snap/$SNAPCRAFT_PROJECT_NAME/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
 
   oxauth:
     after: [jetty]
@@ -300,6 +307,7 @@ apps:
       PYTHONWARNINGS: "ignore"
     command: bin/bash
 
+
   yacron:
     command: bin/yacron -c $SNAP_COMMON/etc/cron-jobs.yaml
     daemon: simple
@@ -308,15 +316,15 @@ apps:
     plugs:
      - network
      - network-bind
-    command: usr/bin/python3
+    command: bin/python3
 
   setup:
     plugs:
      - network
      - network-bind
-    command: usr/bin/python3 $SNAP/bin/setup.py
+    command: bin/python3 $SNAP_COMMON/install/community_edition_setup/setup.py
 
-  apache:
+  apache2:
     environment:
       APACHE_RUN_USER:  "daemon"
       APACHE_RUN_GROUP: "daemon"
@@ -337,16 +345,6 @@ apps:
       JAVA_HOME: "/opt/jre"
     command: gluu-opt/jre/bin/java  -jar $SNAP/gluu-opt/jython/jython.jar
 
-  opendj-setup:
-    plugs:
-     - network
-     - network-bind
-     - mount-observe 
-    environment:
-      JAVA_HOME: "/opt/jre"
-      JAVA_BIN: "/opt/jre/bin/java"
-      OPENDJ_JAVA_HOME: "/opt/jre"
-    command: gluu-opt/opendj/setup
 
   opendj:
     environment:

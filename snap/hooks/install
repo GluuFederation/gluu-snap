@@ -55,6 +55,7 @@ gluu_dirs = [
     'gluu/log/apache2',
     'gluu/run/apache2',
     'run',
+    'opendj',
     'var/gluu',
     'var/www/html',
     'gluu/shibboleth-idp',
@@ -66,7 +67,7 @@ for d in gluu_dirs:
     path = os.path.join(snap_common_dir, d)
     os.makedirs(path, exist_ok=True)
 
-os.system('cp $SNAP/gluu-opt/jre/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
+os.system('cp $SNAP/gluu-opt/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
 
 shutil.copytree(
     os.path.join(snap_dir, 'gluu-opt/oxd-server/conf'),
@@ -74,7 +75,7 @@ shutil.copytree(
     )
 
 
-for s in ('opendj', 'apache', 'passport', 'gluu-radius', 'oxd-server'):
+for s in ('opendj', 'apache2', 'passport', 'gluu-radius', 'oxd-server'):
     os.system('snapctl stop --disable gluu-server.' + s)
 
 
@@ -94,17 +95,15 @@ for service in jetty_services:
 
 if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
     shutil.copytree(
-            os.path.join(snap_dir, 'etc/apache2'),
+            os.path.join(snap_dir, 'etc/apache2.org'),
             os.path.join(snap_common_dir, 'etc/apache2')
             )
 
 yacron_yaml = os.path.join(snap_common_dir, 'etc/cron-jobs.yaml')
 if not os.path.exists(yacron_yaml):
     open(yacron_yaml,'w').close()
-        
+
 shutil.copy(
     '/opt/dist/gluu/casa.pub',
     os.path.join(snap_common_dir, 'etc/certs')
 )
-
-

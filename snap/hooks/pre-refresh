@@ -9,7 +9,7 @@ snap_common_dir = os.environ['SNAP_COMMON']
 print("Running pre-refresh hook")
 
 os.system("snapctl stop --disable gluu-server.opendj")
-os.system("snapctl stop --disable gluu-server.apache")
+os.system("snapctl stop --disable gluu-server.apache2")
 
 jetty_services = ['oxauth', 'identity']
 
