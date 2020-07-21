@@ -299,26 +299,30 @@ apps:
      - network-bind
      - network-observe
      - mount-observe
-     - system-observe 
+     - system-observe
     environment:
       JAVA_HOME: "/opt/jre"
       JAVA_BIN: "/opt/jre/bin/java"
       OPENDJ_JAVA_HOME: "/opt/jre"
       PYTHONWARNINGS: "ignore"
+      PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
     command: bin/bash
-
 
   yacron:
     command: bin/yacron -c $SNAP_COMMON/etc/cron-jobs.yaml
     daemon: simple
 
   python:
+    environment:
+      PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
     plugs:
      - network
      - network-bind
     command: bin/python3
 
   setup:
+    environment:
+      PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
     plugs:
      - network
      - network-bind
