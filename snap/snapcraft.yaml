@@ -178,7 +178,10 @@ parts:
     source-type: tar
     organize:
       "*" : gluu-opt/jetty/
-
+    override-prime: |
+      snapcraftctl prime
+      mkdir -p $SNAPCRAFT_PRIME/usr/lib/tmpfiles.d
+      cp $SNAPCRAFT_PROJECT_DIR/apps/jetty.conf $SNAPCRAFT_PRIME/usr/lib/tmpfiles.d
   jython:
     plugin: dump
     after: [amazon-corretto-jdk]
