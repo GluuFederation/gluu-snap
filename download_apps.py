@@ -63,5 +63,4 @@ def extract_from_ces(src, target_fn):
 
 extract_from_ces('static/system/initd/passport', 'passport/passport')
 extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')
-
 os.chmod('apps/facter/facter', 33261)
