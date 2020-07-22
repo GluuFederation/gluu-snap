@@ -66,8 +66,9 @@ parts:
       - dpkg
       - coreutils
       - login
+      # basic utilities
       - unzip
-
+      - wget
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
