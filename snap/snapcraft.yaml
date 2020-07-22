@@ -9,7 +9,6 @@ grade: stable
 confinement: strict
 base: core20
 
-
 layout:
     /opt/jre:
       symlink: $SNAP/gluu-opt/jre
@@ -71,11 +70,6 @@ parts:
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
-      rm -r -f $SNAPCRAFT_PRIME/etc/cron.d
-      rm -r -f $SNAPCRAFT_PRIME/cron.hourly
-      rm -r -f $SNAPCRAFT_PRIME/cron.daily
-      rm -r -f $SNAPCRAFT_PRIME/cron.weekly
-      rm -r -f $SNAPCRAFT_PRIME/cron.monthly
 
 
   python:
@@ -387,6 +381,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/opendj/bin/start-ds
     stop-command: gluu-opt/opendj/bin/stop-ds
 
@@ -399,6 +394,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/oxauth start
     stop-command: gluu-opt/dist/scripts/oxauth stop
 
@@ -415,6 +411,7 @@ apps:
      - mount-observe
      - system-observe
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/identity start
     stop-command: gluu-opt/dist/scripts/identity stop
 
@@ -427,6 +424,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/idp start
     stop-command: gluu-opt/dist/scripts/idp stop
 
@@ -439,6 +437,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/oxauth-rp start
     stop-command: gluu-opt/dist/scripts/oxauth-rp stop
 
@@ -451,6 +450,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/casa start
     stop-command: gluu-opt/dist/scripts/casa stop
 
@@ -463,6 +463,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/scim start
     stop-command: gluu-opt/dist/scripts/scim stop
 
@@ -475,6 +476,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/fido2 start
     stop-command: gluu-opt/dist/scripts/fido2 stop
 
@@ -483,6 +485,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/passport start
     stop-command: gluu-opt/dist/scripts/passport stop
 
@@ -491,6 +494,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/gluu-radius start
     stop-command: gluu-opt/dist/scripts/gluu-radius stop
 
@@ -499,5 +503,6 @@ apps:
      - network
      - network-bind
     daemon: forking
+    restart-condition: never
     command: gluu-opt/dist/scripts/oxd-server start
     stop-command: gluu-opt/dist/scripts/oxd-server stop
