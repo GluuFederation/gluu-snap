@@ -44,6 +44,9 @@ if not '-e' in sys.argv:
 download('https://github.com/GluuFederation/community-edition-setup/archive/{}.zip'.format(app_versions['SETUP_BRANCH']), 'setup/community-edition-setup.zip')
 download('https://raw.githubusercontent.com/GluuFederation/gluu-snap/master/facter/facter', 'facter/facter')
 
+download('https://ox.gluu.org/maven/org/gluu/scim-server/{0}{1}/scim-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'scim/scim.war')
+download('https://ox.gluu.org/maven/org/gluu/fido2-server/{0}{1}/fido2-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'fido2/fido2.war')
+
 # we need some files form community-edition-setup.zip
 ces = os.path.join( app_dir, 'setup/community-edition-setup.zip')
 ces_zip = zipfile.ZipFile(ces)

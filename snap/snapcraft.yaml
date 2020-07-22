@@ -57,7 +57,6 @@ parts:
     stage-packages:
       - bash
       - sed
-      - cron
       - openssl
       #followings are for opendj
       - libpam-cap
@@ -256,11 +255,26 @@ parts:
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/casa
 
   scim:
-    plugin: nil
+    plugin: dump
     after: [identity]
+    source: apps/scim
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
     override-prime: |
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/scim
+
+  fido2:
+    plugin: dump
+    after: [identity]
+    source: apps/fido2
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
+    override-prime: |
+      snapcraftctl prime
+      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/fido2
 
   oxd-server:
     plugin: dump
@@ -268,6 +282,7 @@ parts:
     source-type: zip
     organize:
       "*" : /gluu-opt/oxd-server/
+
 
   oxd-server-start:
     plugin: dump
@@ -450,6 +465,18 @@ apps:
     daemon: forking
     command: gluu-opt/dist/scripts/scim start
     stop-command: gluu-opt/dist/scripts/scim stop
+
+  fido2:
+    environment:
+      JAVA_HOME: "/opt/jre"
+      JAVA: "/opt/jre/bin/java"
+      JETTY_RUN: "/opt/gluu/jetty/fido2/run"
+    plugs:
+     - network
+     - network-bind
+    daemon: forking
+    command: gluu-opt/dist/scripts/fido2 start
+    stop-command: gluu-opt/dist/scripts/fido2 stop
 
   passport:
     plugs:
