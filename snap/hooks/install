@@ -60,8 +60,6 @@ gluu_dirs = [
     'var/gluu',
     'var/www/html',
     'gluu/shibboleth-idp',
-    'gluu/oxd-server/data',
-    'gluu/oxd-server/log',
     'gluu/oxd-server/run'
     ]
 for d in gluu_dirs:
@@ -69,12 +67,6 @@ for d in gluu_dirs:
     os.makedirs(path, exist_ok=True)
 
 os.system('cp $SNAP/gluu-opt/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs/java-cacerts')
-
-shutil.copytree(
-    os.path.join(snap_dir, 'gluu-opt/oxd-server/conf'),
-    os.path.join(snap_common_dir, 'gluu/oxd-server/conf'),
-    )
-
 
 for s in ('opendj', 'apache2', 'passport', 'gluu-radius', 'oxd-server'):
     os.system('snapctl stop --disable gluu-server.' + s)

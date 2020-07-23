@@ -19,7 +19,7 @@ layout:
     /opt/node:
       symlink: $SNAP/gluu-opt/node
     /opt/oxd-server:
-      symlink: $SNAP/gluu-opt/oxd-server
+      symlink: $SNAP_COMMON/gluu/oxd-server
     /etc/gluu:
        bind: $SNAP_COMMON/etc/gluu
     /opt/install:
@@ -272,20 +272,13 @@ parts:
 
   oxd-server:
     plugin: dump
-    source: apps/oxd-server/oxd-server.zip
-    source-type: zip
-    organize:
-      "*" : /gluu-opt/oxd-server/
-
-
-  oxd-server-start:
-    plugin: dump
-    source: apps/oxd-server/start
+    source: apps/oxd-server
     source-type: local
     organize:
-      "*" : gluu-opt/dist/scripts/
+      "*" : /gluu-opt/dist/gluu/
     override-prime: |
       snapcraftctl prime
+      mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxd-server $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
 
   passport:
@@ -503,6 +496,9 @@ apps:
     stop-command: gluu-opt/dist/scripts/gluu-radius stop
 
   oxd-server:
+    environment:
+      OXD_USER: "root"
+      OXD_LOGS: "/opt/oxd-server/log"
     plugs:
      - network
      - network-bind
