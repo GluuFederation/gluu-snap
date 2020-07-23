@@ -490,6 +490,10 @@ apps:
     stop-command: gluu-opt/dist/scripts/passport stop
 
   gluu-radius:
+    environment:
+      RADIUS_RUN: "/opt/gluu/radius/run"
+      GLUU_RADIUS_USER: "root"
+      GLUU_RADIUS_GROUP: "root"
     plugs:
      - network
      - network-bind
