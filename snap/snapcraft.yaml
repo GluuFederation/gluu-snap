@@ -157,11 +157,11 @@ parts:
 
       if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jre/jre" ]; then
         mkdir $SNAPCRAFT_PRIME/gluu-opt/jre/jre
-        ln -s $SNAPCRAFT_PRIME/gluu-opt/jre/lib $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib
+        cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre; ln -s ../lib
       fi
       if [ ! -f "$SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak" ]; then
         mv $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak
-        ln -s /var/snap/gluu-server/common/etc/certs/java-cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts
+        cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/; ln -s /etc/certs/java-cacerts cacerts
       fi
 
   jetty:
@@ -344,7 +344,7 @@ apps:
     plugs:
      - network
      - network-bind
-    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
+    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py -c
 
   apache2:
     environment:
