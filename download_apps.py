@@ -65,6 +65,7 @@ if not '-e' in sys.argv:
     download('https://raw.githubusercontent.com/GluuFederation/oxd/master/debian/oxd-server', 'oxd-server/oxd-server')
     package_oxd()
 
+download('https://ox.gluu.org/maven/org/gluu/oxauth-rp/{0}{1}/oxauth-rp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth-rp/oxauth-rp.war')
 download('https://github.com/GluuFederation/community-edition-setup/archive/{}.zip'.format(app_versions['SETUP_BRANCH']), 'setup/community-edition-setup.zip')
 
 # we need some files form community-edition-setup.zip

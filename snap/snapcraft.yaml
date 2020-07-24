@@ -219,8 +219,12 @@ parts:
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/identity
 
   oxauth-rp:
-    plugin: nil
+    plugin: dump
     after: [identity]
+    source: apps/oxauth-rp
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
     override-prime: |
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxauth-rp
