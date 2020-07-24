@@ -341,7 +341,7 @@ apps:
     plugs:
      - network
      - network-bind
-    command: bin/python3 $SNAP_COMMON/install/community_edition_setup/setup.py
+    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
 
   apache2:
     environment:

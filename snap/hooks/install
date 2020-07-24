@@ -20,7 +20,7 @@ for f in glob.glob(os.path.join(snap_dir, 'etc/default/*')):
 
 setup_package = os.path.join(snap_dir, 'gluu-opt/dist/gluu/community-edition-setup.zip')
 target_base = os.path.join(snap_common_dir, 'install')
-target_dir = os.path.join(target_base, 'community_edition_setup')
+target_dir = os.path.join(target_base, 'community-edition-setup')
 
 ces_zip = zipfile.ZipFile(setup_package)
 ces_base_dir = ces_zip.namelist()[0]
