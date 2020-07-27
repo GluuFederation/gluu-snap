@@ -69,4 +69,4 @@ After installing, you can run setup as follows:
 $ sudo gluu-server.setup
 ```
 
-Setup will continue as usual. Please note that you will be asked to install only implemented services.
+Setup will continue as usual. After setup completed you will be prompted to run post setup script which ensures snap plugins attached and modifies `/etc/limits.conf` for needs of gluu server.
