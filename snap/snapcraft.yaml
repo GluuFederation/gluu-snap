@@ -84,7 +84,7 @@ parts:
       - python3-wheel
     python-packages:
       - yacron
-      - npyscreen
+      - https://github.com/npcole/npyscreen/archive/master.zip
 
   facter:
     plugin: dump
@@ -344,7 +344,7 @@ apps:
     plugs:
      - network
      - network-bind
-    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py -c
+    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
 
   apache2:
     environment:
