@@ -16,7 +16,7 @@ for f in glob.glob(os.path.join(snap_dir, 'etc/default/*')):
             os.path.join(snap_common_dir, 'etc/default')
         )
 
-#Extract community edition setup
+# Extract community edition setup
 
 setup_package = os.path.join(snap_dir, 'gluu-opt/dist/gluu/community-edition-setup.zip')
 target_base = os.path.join(snap_common_dir, 'install')
@@ -94,7 +94,7 @@ if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
 
 yacron_yaml = os.path.join(snap_common_dir, 'etc/cron-jobs.yaml')
 if not os.path.exists(yacron_yaml):
-    open(yacron_yaml,'w').close()
+    open(yacron_yaml, 'w').close()
 
 shutil.copy(
     '/opt/dist/gluu/casa.pub',

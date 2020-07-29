@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import os
 import sys
 import json
@@ -11,11 +12,12 @@ cur_dir = os.path.dirname(os.path.realpath(__file__))
 app_dir = os.path.join(cur_dir, 'apps')
 app_versions = json.load(open(os.path.join(cur_dir, "setup/app_versions.json")))
 
+
 def download(url, target_fn):
     dst = os.path.join(app_dir, target_fn)
     pardir, fn = os.path.split(dst)
     if not os.path.exists(pardir):
-        os.makedirs(pardir) 
+        os.makedirs(pardir)
     print("Downloading", url, "to", dst)
     urlretrieve(url, dst)
 
@@ -30,7 +32,7 @@ def package_oxd():
     cmd = 'unzip -qqo {} -d {}/oxd-server'.format(oxd_zip_fn, oxd_tmp_dir)
     print("Excuting", cmd)
     os.system(cmd)
-    cmd = 'mkdir ' + os.path.join(oxd_tmp_dir,'oxd-server/data')
+    cmd = 'mkdir ' + os.path.join(oxd_tmp_dir, 'oxd-server/data')
     print("Excuting", cmd)
     os.system(cmd)
     cmd = 'cd {}; tar -zcf {} oxd-server'.format(oxd_tmp_dir, oxd_tgz_fn)
@@ -69,9 +71,10 @@ download('https://ox.gluu.org/maven/org/gluu/oxauth-rp/{0}{1}/oxauth-rp-{0}{1}.w
 download('https://github.com/GluuFederation/community-edition-setup/archive/{}.zip'.format(app_versions['SETUP_BRANCH']), 'setup/community-edition-setup.zip')
 
 # we need some files form community-edition-setup.zip
-ces = os.path.join( app_dir, 'setup/community-edition-setup.zip')
+ces = os.path.join(app_dir, 'setup/community-edition-setup.zip')
 ces_zip = zipfile.ZipFile(ces)
 ces_par_dir = ces_zip.namelist()[0]
+
 
 def extract_from_ces(src, target_fn):
     dst = os.path.join(app_dir, target_fn)
@@ -84,6 +87,7 @@ def extract_from_ces(src, target_fn):
 
     with open(dst, 'wb') as w:
         w.write(content)
+
 
 extract_from_ces('static/system/initd/passport', 'passport/passport')
 extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')
