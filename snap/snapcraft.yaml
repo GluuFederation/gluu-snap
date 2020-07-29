@@ -347,6 +347,13 @@ apps:
      - network-bind
     command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
 
+  version:
+    environment:
+      PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
+    plugs:
+     - network
+    command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup_app/utils/printVersion.py
+
   apache2:
     environment:
       APACHE_RUN_USER:  "daemon"
