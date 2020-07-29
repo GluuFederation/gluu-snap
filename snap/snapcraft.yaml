@@ -11,43 +11,43 @@ base: core20
 
 layout:
     /opt/jre:
-      symlink: $SNAP/gluu-opt/jre
+        symlink: $SNAP/gluu-opt/jre
     /opt/jetty:
-      symlink: $SNAP/gluu-opt/jetty
+        symlink: $SNAP/gluu-opt/jetty
     /opt/opendj:
-      symlink: $SNAP/gluu-opt/opendj
+        symlink: $SNAP/gluu-opt/opendj
     /opt/node:
-      symlink: $SNAP/gluu-opt/node
+        symlink: $SNAP/gluu-opt/node
     /opt/oxd-server:
-      symlink: $SNAP_COMMON/gluu/oxd-server
+        symlink: $SNAP_COMMON/gluu/oxd-server
     /etc/gluu:
-      bind: $SNAP_COMMON/etc/gluu
+        bind: $SNAP_COMMON/etc/gluu
     /opt/install:
-      symlink: $SNAP_COMMON/install
+        symlink: $SNAP_COMMON/install
     /var/gluu:
-      symlink: $SNAP_COMMON/var/gluu
+        symlink: $SNAP_COMMON/var/gluu
     /etc/certs:
-      symlink: $SNAP_COMMON/etc/certs
+        symlink: $SNAP_COMMON/etc/certs
     /etc/default:
-      bind: $SNAP_COMMON/etc/default
+        bind: $SNAP_COMMON/etc/default
     /opt/gluu:
-      symlink: $SNAP_COMMON/gluu
+        symlink: $SNAP_COMMON/gluu
     /opt/dist:
-      symlink: $SNAP/gluu-opt/dist
+        symlink: $SNAP/gluu-opt/dist
     /usr/lib/apache2:
-      symlink: $SNAP/usr/lib/apache2
+        symlink: $SNAP/usr/lib/apache2
     /usr/share/apache2:
-      symlink: $SNAP/usr/share/apache2
+        symlink: $SNAP/usr/share/apache2
     /etc/apache2:
-      symlink: $SNAP_COMMON/etc/apache2
+        symlink: $SNAP_COMMON/etc/apache2
     /var/www/html:
-      symlink: $SNAP_COMMON/var/www/html
+        symlink: $SNAP_COMMON/var/www/html
     /etc/ssl/openssl.cnf:
-      bind-file: $SNAP/etc/ssl/openssl.cnf
+        bind-file: $SNAP/etc/ssl/openssl.cnf
     /opt/shibboleth-idp:
-      symlink: $SNAP_COMMON/gluu/shibboleth-idp
+        symlink: $SNAP_COMMON/gluu/shibboleth-idp
     /usr/bin/facter:
-      symlink: $SNAP/usr/bin/facter
+        symlink: $SNAP/usr/bin/facter
 
 parts:
   base-system:

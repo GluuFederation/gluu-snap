@@ -28,5 +28,5 @@ for service in jetty_services:
 if not os.path.exists(os.path.join(snap_common_dir, 'etc/apache2')):
     shutil.copytree(
             os.path.join(snap_dir, 'etc/apache2'),
-            os.path.join(snap_common_dir, 'etc/apachhe2')
+            os.path.join(snap_common_dir, 'etc/apache2')
             )
