@@ -15,10 +15,9 @@ def download(url, target_fn):
     dst = os.path.join(app_dir, target_fn)
     pardir, fn = os.path.split(dst)
     if not os.path.exists(pardir):
-        os.makedirs(pardir) 
+        os.makedirs(pardir)
     print("Downloading", url, "to", dst)
     urlretrieve(url, dst)
-
 
 def package_oxd():
     oxd_app_dir = os.path.join(app_dir, 'oxd-server')
@@ -30,7 +29,7 @@ def package_oxd():
     cmd = 'unzip -qqo {} -d {}/oxd-server'.format(oxd_zip_fn, oxd_tmp_dir)
     print("Excuting", cmd)
     os.system(cmd)
-    cmd = 'mkdir ' + os.path.join(oxd_tmp_dir,'oxd-server/data')
+    cmd = 'mkdir ' + os.path.join(oxd_tmp_dir, 'oxd-server/data')
     print("Excuting", cmd)
     os.system(cmd)
     cmd = 'cd {}; tar -zcf {} oxd-server'.format(oxd_tmp_dir, oxd_tgz_fn)
@@ -38,7 +37,6 @@ def package_oxd():
     os.system(cmd)
     os.remove(oxd_zip_fn)
     shutil.rmtree(oxd_tmp_dir)
-
 
 if not '-e' in sys.argv:
     download('https://corretto.aws/downloads/latest/amazon-corretto-{0}-x64-linux-jdk.tar.gz'.format(app_versions['AMAZON_CORRETTO_VERSION']), 'corretto/amazon-corretto.tar.gz')

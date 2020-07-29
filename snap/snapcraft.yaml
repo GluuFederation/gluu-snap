@@ -2,7 +2,7 @@ name: gluu-server
 version: "4.2.0"
 summary: Central authentication and authorization for web and mobile applications.
 description: |
-  Identity & access management (IAM) platform for web & mobile single sign-on (SSO), 
+  Identity & access management (IAM) platform for web & mobile single sign-on (SSO),
   two-factor authentication (2FA) and API access management.
 
 grade: stable
@@ -21,13 +21,13 @@ layout:
     /opt/oxd-server:
       symlink: $SNAP_COMMON/gluu/oxd-server
     /etc/gluu:
-       bind: $SNAP_COMMON/etc/gluu
+      bind: $SNAP_COMMON/etc/gluu
     /opt/install:
       symlink: $SNAP_COMMON/install
     /var/gluu:
-        symlink: $SNAP_COMMON/var/gluu
+      symlink: $SNAP_COMMON/var/gluu
     /etc/certs:
-       symlink: $SNAP_COMMON/etc/certs
+      symlink: $SNAP_COMMON/etc/certs
     /etc/default:
       bind: $SNAP_COMMON/etc/default
     /opt/gluu:
@@ -50,7 +50,6 @@ layout:
       symlink: $SNAP/usr/bin/facter
 
 parts:
-
   base-system:
     plugin: nil
     stage-packages:
@@ -69,7 +68,6 @@ parts:
     override-prime: |
       snapcraftctl prime
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
-
 
   python:
     after: [base-system]
@@ -104,7 +102,6 @@ parts:
     override-prime: |
       snapcraftctl prime
       echo "/var/snap/$SNAPCRAFT_PROJECT_NAME/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
-
 
   apache2:
     after: [base-system]
@@ -146,7 +143,7 @@ parts:
       - libgdk-pixbuf2.0-0
       - libgraphite2-3
       - libharfbuzz0b
-      - libpango-1.0-0 
+      - libpango-1.0-0
       - libpangocairo-1.0-0
       - libpangoft2-1.0-0
       - libpixman-1-0
@@ -175,6 +172,7 @@ parts:
       snapcraftctl prime
       mkdir -p $SNAPCRAFT_PRIME/usr/lib/tmpfiles.d
       cp $SNAPCRAFT_PROJECT_DIR/apps/jetty.conf $SNAPCRAFT_PRIME/usr/lib/tmpfiles.d
+
   jython:
     plugin: dump
     after: [amazon-corretto-jdk]
@@ -311,7 +309,6 @@ parts:
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
 
 apps:
-
   bash:
     plugs:
      - network
@@ -367,7 +364,6 @@ apps:
     environment:
       JAVA_HOME: "/opt/jre"
     command: gluu-opt/jre/bin/java  -jar $SNAP/gluu-opt/jython/jython.jar
-
 
   opendj:
     environment:
