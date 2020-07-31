@@ -129,6 +129,7 @@ parts:
       "*" : gluu-opt/jre/
     stage-packages:
       # the following packages are needed for amazon-corretto-jdk
+      - musl
       - libgl1
       - libx11-6
       - libxdmcp6
