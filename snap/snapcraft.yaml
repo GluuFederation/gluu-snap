@@ -53,6 +53,7 @@ parts:
   base-system:
     plugin: nil
     stage-packages:
+      - base-files
       - bash
       - sed
       - openssl
