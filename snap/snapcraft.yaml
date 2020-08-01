@@ -341,6 +341,7 @@ apps:
   setup:
     environment:
       PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
+      PYTHONUTF8: "1"
     plugs:
      - network
      - network-bind
