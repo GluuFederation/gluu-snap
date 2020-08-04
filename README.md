@@ -50,7 +50,7 @@ $ sudo apt install snapd
 $ sudo apt update
 $ sudo apt install snapd
 $ sudo snap install core
-$ sudo snap install snap
+$ sudo snap install snapd
 ```
 
 ### CentOS 7
