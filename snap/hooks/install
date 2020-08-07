@@ -43,7 +43,6 @@ jetty_tmp_logs_dir = '/tmp/hsperfdata_root/logs'
 if not os.path.exists(jetty_tmp_logs_dir):
     os.makedirs(jetty_tmp_logs_dir)
 
-
 gluu_dirs = [
     'etc/gluu',
     'run/jetty',
@@ -70,7 +69,6 @@ os.system('cp $SNAP/gluu-opt/jre/lib/security/cacerts.bak $SNAP_COMMON/etc/certs
 
 for s in ('opendj', 'apache2', 'passport', 'gluu-radius', 'oxd-server'):
     os.system('snapctl stop --disable gluu-server.' + s)
-
 
 jetty_services = ['oxauth', 'identity', 'idp', 'oxauth-rp', 'casa', 'scim', 'fido2']
 

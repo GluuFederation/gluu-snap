@@ -12,7 +12,6 @@ cur_dir = os.path.dirname(os.path.realpath(__file__))
 app_dir = os.path.join(cur_dir, 'apps')
 app_versions = json.load(open(os.path.join(cur_dir, "setup/app_versions.json")))
 
-
 def download(url, target_fn):
     dst = os.path.join(app_dir, target_fn)
     pardir, fn = os.path.split(dst)
@@ -20,7 +19,6 @@ def download(url, target_fn):
         os.makedirs(pardir)
     print("Downloading", url, "to", dst)
     urlretrieve(url, dst)
-
 
 def package_oxd():
     oxd_app_dir = os.path.join(app_dir, 'oxd-server')
@@ -40,7 +38,6 @@ def package_oxd():
     os.system(cmd)
     os.remove(oxd_zip_fn)
     shutil.rmtree(oxd_tmp_dir)
-
 
 if not '-e' in sys.argv:
     download('https://corretto.aws/downloads/resources/{0}/amazon-corretto-{0}-linux-x64.tar.gz'.format(app_versions['AMAZON_CORRETTO_VERSION']), 'corretto/amazon-corretto.tar.gz')
@@ -75,19 +72,15 @@ ces = os.path.join(app_dir, 'setup/community-edition-setup.zip')
 ces_zip = zipfile.ZipFile(ces)
 ces_par_dir = ces_zip.namelist()[0]
 
-
 def extract_from_ces(src, target_fn):
     dst = os.path.join(app_dir, target_fn)
     print("Extracting {} from community-edition-setup.zip to {}".format(src, dst))
     content = ces_zip.read(os.path.join(ces_par_dir, src))
     p, f = os.path.split(dst)
-
     if not os.path.exists(p):
         os.makedirs(p)
-
     with open(dst, 'wb') as w:
         w.write(content)
-
 
 extract_from_ces('static/system/initd/passport', 'passport/passport')
 extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')

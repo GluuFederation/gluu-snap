@@ -44,6 +44,14 @@ To install snap software on Ubuntu you need snapd package installed on your mach
 $ sudo apt update
 $ sudo apt install snapd
 ```
+### Debian9/10
+
+```
+$ sudo apt update
+$ sudo apt install snapd
+$ sudo snap install core
+$ sudo snap install snapd
+```
 
 ### CentOS 7
 
@@ -60,12 +68,13 @@ If you did not build gluu-server snap package yourself, download latest version 
 Installing gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
 
 ```
-$ sudo snap install gluu-server_<version>_amd64.snap --dangerous
+$ sudo snap install --dangerous gluu-server_<version>_amd64.snap
 ```
 
 After installing, you can run setup as follows:
 
 ```
+$ export PATH="/snap/bin:$PATH"
 $ sudo gluu-server.setup
 ```
 
