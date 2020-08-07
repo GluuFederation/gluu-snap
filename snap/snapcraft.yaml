@@ -154,7 +154,6 @@ parts:
       - libxcb-shm0
     override-prime: |
       snapcraftctl prime
-
       if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jre/jre" ]; then
         mkdir $SNAPCRAFT_PRIME/gluu-opt/jre/jre
         cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre; ln -s ../lib
