@@ -68,7 +68,7 @@ If you did not build gluu-server snap package yourself, download latest version 
 Installing gluu snap package is trivial (please change `<version>` that matches to downloaded package in the following command):
 
 ```
-$ sudo snap --dangerous install gluu-server_<version>_amd64.snap
+$ sudo snap install --dangerous gluu-server_<version>_amd64.snap
 ```
 
 After installing, you can run setup as follows:
