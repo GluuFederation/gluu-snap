@@ -43,6 +43,7 @@ To install snap software on Ubuntu you need snapd package installed on your mach
 ```
 $ sudo apt update
 $ sudo apt install snapd
+$ export PATH="/snap/bin:$PATH"
 ```
 ### Debian9/10
 
