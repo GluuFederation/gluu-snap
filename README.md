@@ -51,6 +51,7 @@ $ sudo apt update
 $ sudo apt install snapd
 $ sudo snap install core
 $ sudo snap install snapd
+$ export PATH="/snap/bin:$PATH"
 ```
 
 ### CentOS 7
@@ -60,6 +61,7 @@ $ sudo yum install epel-release
 $ sudo yum -y install snapd
 $ sudo ln -s /var/lib/snapd/snap /snap
 $ sudo systemctl enable --now snapd.socket
+$ export PATH="/var/lib/snapd/snap/bin:/snap/bin:$PATH"
 ```
 
 ## Install Gluu Server
