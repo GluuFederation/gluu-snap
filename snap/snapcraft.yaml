@@ -1,5 +1,5 @@
 name: gluu-server
-version: "4.2.1"
+version: "4.2.0"
 summary: Central authentication and authorization for web and mobile applications.
 description: |
   Identity & access management (IAM) platform for web & mobile single sign-on (SSO),
@@ -57,6 +57,7 @@ parts:
       - bash
       - sed
       - openssl
+      - mime-support
       #followings are for opendj
       - libpam-cap
       - libcap2-bin
@@ -154,7 +155,6 @@ parts:
       - libxcb-shm0
     override-prime: |
       snapcraftctl prime
-
       if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/jre/jre" ]; then
         mkdir $SNAPCRAFT_PRIME/gluu-opt/jre/jre
         cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre; ln -s ../lib
