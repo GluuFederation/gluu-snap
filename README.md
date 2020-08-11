@@ -78,7 +78,7 @@ $ sudo snap install gluu-server_<version>_amd64.snap --dangerous
 
 After installing, you can run setup as follows:
 
-**Note:** Before running setup, please check if your target hostname could be reolved, if not add it to `/etc/hosts`
+**Note:** Before running setup. Please check, if your target hostname could be resolved. If not add it to `/etc/hosts`.
 
 ```
 $ sudo gluu-server.setup
