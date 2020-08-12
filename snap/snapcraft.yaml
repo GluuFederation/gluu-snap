@@ -197,8 +197,8 @@ parts:
       "*" : gluu-opt/node/
 
   oxauth:
-    after: [jetty]
     plugin: dump
+    after: [jetty]
     source: apps/oxauth
     source-type: local
     organize:
