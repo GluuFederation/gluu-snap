@@ -72,8 +72,8 @@ parts:
       sed 's/^RANDFILE/#&/' -i $SNAPCRAFT_PRIME/etc/ssl/openssl.cnf
 
   python:
-    after: [base-system]
     plugin: python
+    after: [base-system]
     build-environment:
       - PYTHONPATH: "$SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages"
     stage-packages:
@@ -95,8 +95,8 @@ parts:
       "*" : /usr/bin/
 
   opendj:
-    after: [jython]
     plugin: dump
+    after: [jython]
     source: apps/opendj/opendj-server.zip
     source-type: zip
     organize:
@@ -106,8 +106,8 @@ parts:
       echo "/var/snap/$SNAPCRAFT_PROJECT_NAME/common/opendj" > $SNAPCRAFT_PRIME/gluu-opt/opendj/instance.loc
 
   apache2:
-    after: [base-system]
     plugin: nil
+    after: [base-system]
     stage-packages:
       - apache2
     override-prime: |
@@ -122,8 +122,8 @@ parts:
       "*" : /gluu-opt/dist/gluu/
 
   amazon-corretto-jdk:
-    after: [base-system]
     plugin: dump
+    after: [base-system]
     source: apps/corretto/amazon-corretto.tar.gz
     source-type: tar
     organize:
