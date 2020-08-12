@@ -77,7 +77,6 @@ def extract_from_ces(src, target_fn):
     print("Extracting {} from community-edition-setup.zip to {}".format(src, dst))
     content = ces_zip.read(os.path.join(ces_par_dir, src))
     p, f = os.path.split(dst)
-
     if not os.path.exists(p):
         os.makedirs(p)
     with open(dst, 'wb') as w:
