@@ -310,6 +310,13 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
 
+  hooks:
+    plugin: dump
+    source: hooks/
+    organize:
+      bin/: snap/hooks/
+
+
 apps:
   bash:
     plugs:
