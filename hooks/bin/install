@@ -1,12 +1,14 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import os
+import sys
 import glob
 import zipfile
 import shutil
 
 snap_dir = os.environ['SNAP']
 snap_common_dir = os.environ['SNAP_COMMON']
+sys.path.append(os.path.join(snap_dir, 'usr/lib/python3/dist-packages'))
 
 print("Running install hook")
 

@@ -1,2 +1,52 @@
-#!/bin/bash -e
-#snapctl --enable gluu-server.opendj
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+import time
+import zipfile
+
+snap_dir = os.environ['SNAP']
+snap_common_dir = os.environ['SNAP_COMMON']
+sys.path.append(os.path.join(snap_dir, 'usr/lib/python3/dist-packages'))
+
+
+print("Running post-refresh hook")
+
+for s in ('opendj', 'apache2', 'passport', 'gluu-radius', 'oxd-server'):
+    os.system('snapctl stop --disable gluu-server.' + s)
+
+jetty_services = ['oxauth', 'identity', 'idp', 'oxauth-rp', 'casa', 'scim', 'fido2']
+
+for service in jetty_services:
+    print("Stopping", service)
+    cmd = 'snapctl stop --disable gluu-server.{}  '.format(service)
+    os.system(cmd)
+
+gluu_dirs = [
+    'gluu/jetty/temp',
+    ]
+for d in gluu_dirs:
+    path = os.path.join(snap_common_dir, d)
+    os.makedirs(path, exist_ok=True)
+
+#Extract community edition setup
+
+setup_package = os.path.join(snap_dir, 'gluu-opt/dist/gluu/community-edition-setup.zip')
+target_base = os.path.join(snap_common_dir, 'install')
+target_dir = os.path.join(target_base, 'community-edition-setup')
+
+ces_zip = zipfile.ZipFile(setup_package)
+ces_base_dir = ces_zip.namelist()[0]
+ces_zip.extractall(target_base)
+
+if not os.path.exists(target_base):
+    os.mkdir(target_base)
+
+if os.path.exists(target_dir):
+    backup_dir = target_dir+'.back-'+time.ctime().replace(' ','_')
+    print("Backing up", backup_dir)
+    os.rename(target_dir, backup_dir)
+
+extract_dir = os.path.join(target_base, ces_base_dir)
+os.rename(extract_dir, target_dir)

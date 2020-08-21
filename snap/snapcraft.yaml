@@ -50,6 +50,13 @@ layout:
       symlink: $SNAP/usr/bin/facter
 
 parts:
+
+  hooks:
+    plugin: dump
+    source: hooks/
+    organize:
+      bin/: snap/hooks/
+
   base-system:
     plugin: nil
     stage-packages:
@@ -93,6 +100,13 @@ parts:
     source-type: local
     organize:
       "*" : /usr/bin/
+
+  upgrade:
+    plugin: dump
+    source: upgrade/
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/
 
   opendj:
     plugin: dump
@@ -310,11 +324,7 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
 
-  hooks:
-    plugin: dump
-    source: hooks/
-    organize:
-      bin/: snap/hooks/
+
 
 
 apps:
@@ -353,6 +363,16 @@ apps:
      - network
      - network-bind
     command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
+
+
+  upgrade:
+    environment:
+      PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
+      PYTHONUTF8: "1"
+    plugs:
+     - network
+    command: bin/python3 $SNAP/gluu-opt/dist/gluu/upgrade.py
+
 
   version:
     environment:
