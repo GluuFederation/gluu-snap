@@ -108,6 +108,13 @@ parts:
     organize:
       "*" : /gluu-opt/dist/gluu/
 
+  upgrade-files:
+    plugin: dump
+    source: apps/upgrades/
+    source-type: local
+    organize:
+      "*" : /gluu-opt/dist/gluu/upgrades/
+
   opendj:
     plugin: dump
     after: [jython]

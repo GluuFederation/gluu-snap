@@ -62,6 +62,9 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/scim-server/{0}{1}/scim-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'scim/scim.war')
     download('https://ox.gluu.org/maven/org/gluu/fido2-server/{0}{1}/fido2-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'fido2/fido2.war')
     download('https://raw.githubusercontent.com/GluuFederation/oxd/master/debian/oxd-server', 'oxd-server/oxd-server')
+    download('https://raw.githubusercontent.com/GluuFederation/oxTrust/master/configuration/src/main/resources/META-INF/shibboleth3/idp/saml-nameid.properties.vm', 'upgrades/saml-nameid.properties.vm')
+
+
     package_oxd()
 
 download('https://ox.gluu.org/maven/org/gluu/oxauth-rp/{0}{1}/oxauth-rp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth-rp/oxauth-rp.war')

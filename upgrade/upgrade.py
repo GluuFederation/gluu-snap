@@ -15,6 +15,7 @@ if not result.strip() or (result.strip() and result.strip().lower()[0] != 'y'):
     sys.exit()
 
 snap_common_dir = os.environ['SNAP_COMMON']
+snap_dir = os.environ['SNAP']
 ces_dir = os.path.join(snap_common_dir, 'install/community-edition-setup')
 open(os.path.join(ces_dir, '__init__.py'),'w').close()
 sys.path.append(ces_dir)
@@ -38,8 +39,12 @@ from setup_app.installers.base import BaseInstaller
 from setup_app.installers.gluu import GluuInstaller
 from setup_app.installers.httpd import HttpdInstaller
 from setup_app.installers.jetty import JettyInstaller
+from setup_app.installers.node import NodeInstaller
+from setup_app.installers.saml import SamlInstaller
 
 Config.init(paths.INSTALL_DIR)
+Config.determine_version()
+
 SetupUtils.init()
 
 collectProperties = CollectProperties()
@@ -53,6 +58,8 @@ gluuInstaller.encode_passwords()
 jettyInstaller = JettyInstaller()
 jettyInstaller.calculate_selected_aplications_memory()
 Config.templateRenderingDict['jetty_dist'] = Config.jetty_base
+
+samlInstaller = SamlInstaller()
 
 jetty_temp = os.path.join(snap_common_dir, 'gluu/jetty/temp')
 if not os.path.exists(jetty_temp):
@@ -177,6 +184,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
 
         passport_default_fn = '/etc/default/passport'
         if os.path.exists(passport_default_fn):
+            Config.node_base = NodeInstaller.node_base
             passport_default = self.render_template(os.path.join(ces_dir, 'templates/node/passport'))
             self.writeFile(passport_default_fn, passport_default)
 
@@ -348,41 +356,36 @@ class GluuUpdater(BaseInstaller, SetupUtils):
         print("Updadting shibboleth-idp")
 
         print("Backing up ...")
-        self.setupObj.run(['cp', '-r', '/opt/shibboleth-idp', '/opt/shibboleth-idp.back'])
+        idp_dir = os.path.join(snap_common_dir, 'gluu/shibboleth-idp')
+        backup_dir = idp_dir + '-back.' + os.urandom(3).hex() + '~'
+        
+        self.run(['mv', idp_dir, backup_dir ])
+        self.createDirs(idp_dir)
+        
         print("Updating idp-metadata.xml")
-        self.setupObj.templateRenderingDict['idp3SigningCertificateText'] = open('/etc/certs/idp-signing.crt').read().replace('-----BEGIN CERTIFICATE-----','').replace('-----END CERTIFICATE-----','')
-        self.setupObj.templateRenderingDict['idp3EncryptionCertificateText'] = open('/etc/certs/idp-encryption.crt').read().replace('-----BEGIN CERTIFICATE-----','').replace('-----END CERTIFICATE-----','')
+        Config.templateRenderingDict['idp3SigningCertificateText'] = open('/etc/certs/idp-signing.crt').read().replace('-----BEGIN CERTIFICATE-----','').replace('-----END CERTIFICATE-----','')
+        Config.templateRenderingDict['idp3EncryptionCertificateText'] = open('/etc/certs/idp-encryption.crt').read().replace('-----BEGIN CERTIFICATE-----','').replace('-----END CERTIFICATE-----','')
 
-        self.setupObj.backupFile(saml_meta_data_fn)
+        print("Unpacking idp3")
+        samlInstaller.unpack_idp3()
+        samlInstaller.install_saml_libraries()
 
-        os.chdir('/opt')
-        self.setupObj.run(['/opt/jre/bin/jar', 'xf', os.path.join(self.app_dir,'shibboleth-idp.jar')])
-        self.setupObj.run(['rm', '-r', '/opt/META-INF'])
+        #copy sealer.jks and sealer.kver
+        self.copyFile(os.path.join(backup_dir, 'credentials/sealer.kver'), os.path.join(idp_dir, 'credentials'))
+        self.copyFile(os.path.join(backup_dir, 'credentials/sealer.jks'), os.path.join(idp_dir, 'credentials'))
         
-        idp_tmp_dir = '/tmp/{0}'.format(str(int(time.time()*1000)))
-        self.setupObj.run(['mkdir','-p', idp_tmp_dir])
-        
-        os.chdir(idp_tmp_dir)
-
-        self.setupObj.run(['/opt/jre/bin/jar', 'xf', os.path.join(self.app_dir, 'idp.war')])
-        self.setupObj.run(['rm', '-f', '/opt/shibboleth-idp/webapp/WEB-INF/lib/*'])
-        self.setupObj.run(['cp', '-r', os.path.join(idp_tmp_dir, 'WEB-INF/'), '/opt/shibboleth-idp/webapp'])
-
         #Recreate idp-metadata.xml with new format
         temp_fn = os.path.join(ces_dir, 'static/idp3/metadata/idp-metadata.xml')
         new_saml_meta_data = self.render_template(temp_fn)
-        self.setupObj.writeFile(saml_meta_data_fn, new_saml_meta_data)
+        self.writeFile(saml_meta_data_fn, new_saml_meta_data)
 
         for prop_fn in ('idp.properties', 'ldap.properties', 'services.properties','saml-nameid.properties'):
             print("Updating", prop_fn)
             properties = self.render_template(os.path.join(ces_dir, 'static/idp3/conf', prop_fn))
-            self.setupObj.writeFile(os.path.join('/opt/shibboleth-idp/conf', prop_fn), properties)
+            self.writeFile(os.path.join('/opt/shibboleth-idp/conf', prop_fn), properties)
 
-        self.setupObj.run(['cp', '-f', '{}/app/saml-nameid.properties.vm'.format(cur_dir), '/opt/gluu/jetty/identity/conf/shibboleth3/idp/'])
-        self.setupObj.run(['chown', '-R', 'jetty:jetty', '/opt/shibboleth-idp'])
-        self.setupObj.run(['rm', '-r', '-f', idp_tmp_dir])
-
-        os.chdir(cur_dir)
+        self.run(['cp', '-f', '/opt/dist/gluu/upgrades/saml-nameid.properties.vm', '/opt/gluu/jetty/identity/conf/shibboleth3/idp/'])
+        self.run(['chown', '-R', 'jetty:jetty', '/opt/shibboleth-idp'])
 
     def update_radius(self):
 
@@ -820,8 +823,8 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 self.writeFile(default_fn, default_)
 
 updaterObj = GluuUpdater()
-updaterObj.prepare_persist_changes()
 
+updaterObj.prepare_persist_changes()
 updaterObj.fix_gluu_config()
 updaterObj.update_ldap()
 httpdinstaller.write_httpd_config()
@@ -832,10 +835,14 @@ updaterObj.updateAttributes()
 updaterObj.update_scopes()
 updaterObj.update_default_settings()
 updaterObj.update_war_files()
+updaterObj.update_shib()
 
 
 """
-updaterObj.update_shib()
+import code
+code.interact(local=locals())
+sys.exit()
+
 updaterObj.update_passport()
 updaterObj.update_radius()
 updaterObj.update_casa()
