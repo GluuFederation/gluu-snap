@@ -8,6 +8,9 @@ import ldap3
 import json
 import glob
 import re
+import zipfile
+import ruamel.yaml
+import tarfile
 
 #TODO: check if upgrade is needed
 
@@ -24,8 +27,8 @@ sys.path.append(ces_dir)
 
 from setup_app import paths
 paths.LOG_FILE = os.path.join(ces_dir, 'logs/upgrade421.log')
-paths.LOG_ERROR_FILE = os.path.join(ces_dir, 'logsupgrade421_error.log')
-paths.LOG_OS_CHANGES_FILE = os.path.join(ces_dir, 'logsupgrade421_os-changes.log')
+paths.LOG_ERROR_FILE = os.path.join(ces_dir, 'logs/upgrade421_error.log')
+paths.LOG_OS_CHANGES_FILE = os.path.join(ces_dir, 'logs/upgrade421_os-changes.log')
 
 print("Starting WrenDS")
 os.system('snapctl restart {}.opendj'.format(os.environ['SNAP_NAME']))
@@ -44,6 +47,8 @@ from setup_app.installers.jetty import JettyInstaller
 from setup_app.installers.node import NodeInstaller
 from setup_app.installers.saml import SamlInstaller
 from setup_app.installers.passport import PassportInstaller
+from setup_app.installers.casa import CasaInstaller
+from setup_app.installers.oxd import OxdInstaller
 
 Config.init(paths.INSTALL_DIR)
 Config.determine_version()
@@ -64,6 +69,8 @@ Config.templateRenderingDict['jetty_dist'] = Config.jetty_base
 
 samlInstaller = SamlInstaller()
 passportInstaller = PassportInstaller()
+casaInstaller = CasaInstaller()
+oxdInstaller = OxdInstaller()
 
 jetty_temp = os.path.join(snap_common_dir, 'gluu/jetty/temp')
 if not os.path.exists(jetty_temp):
@@ -409,28 +416,37 @@ class GluuUpdater(BaseInstaller, SetupUtils):
 
 
     def update_oxd(self):
-        oxd_root = '/opt/oxd-server/'
-        if not os.path.exists(oxd_root):
+        oxd_root = '/opt/oxd-server'
+        oxd_server_yml_fn = os.path.join(oxd_root, 'conf/oxd-server.yml')
+        oxd_server_lib_dir = os.path.join(oxd_root, 'lib')
+        
+        if not os.path.exists(oxd_server_yml_fn):
             return
 
         print("Updating oxd Server")
-        self.setupObj.copyFile(
-                    os.path.join(self.app_dir, 'oxd-server.jar'),
-                    '/opt/oxd-server/lib'
-                    )
+        if not os.path.exists(oxd_server_lib_dir):
+            self.run(['mkdir', '-p', oxd_server_lib_dir])
+        
+        tar = tarfile.open("/opt/dist/gluu/oxd-server.tgz", "r:gz")
+        for fn in tar.getnames():
+            if fn.startswith('oxd-server/lib/'):
+                buf = tar.extractfile(fn)
+                with open(os.path.join('/opt', fn), 'wb') as w:
+                    w.write(buf.read())
 
-        oxd_server_yml_fn = os.path.join(oxd_root, 'conf/oxd-server.yml')
-        yml_str = self.setupObj.readFile(oxd_server_yml_fn)
+        yml_str = self.readFile(oxd_server_yml_fn)
         oxd_yaml = ruamel.yaml.load(yml_str, ruamel.yaml.RoundTripLoader)
 
-        ip = self.setupObj.detect_ip()
-
-        if os.path.exists(self.casa_base_dir) and hasattr(self, 'casa_oxd_host') and getattr(self, 'casa_oxd_host') in (Config.hostname, ip):
+        ip = self.detect_ip()
+        import_cert = False
+        if os.path.exists(casaInstaller.casa_jetty_dir) and hasattr(self, 'casa_oxd_host') and getattr(self, 'casa_oxd_host') in (Config.hostname, ip):
 
             write_oxd_yaml = False
             if 'bind_ip_addresses' in oxd_yaml:
                 if not ip in oxd_yaml['bind_ip_addresses']:
                     oxd_yaml['bind_ip_addresses'].append(ip)
+                    oxd_yaml['bind_ip_addresses'].append('127.0.0.1')
+                    oxd_yaml['bind_ip_addresses'].append('::1')
                     write_oxd_yaml = True
             else:
                 for i, k in enumerate(oxd_yaml):
@@ -443,86 +459,51 @@ class GluuUpdater(BaseInstaller, SetupUtils):
 
             if write_oxd_yaml:
                 yml_str = ruamel.yaml.dump(oxd_yaml, Dumper=ruamel.yaml.RoundTripDumper)
-                self.setupObj.writeFile(oxd_server_yml_fn, yml_str)
-
+                self.writeFile(oxd_server_yml_fn, yml_str)
 
             #create oxd certificate if not CN=hostname
-            r = os.popen('/opt/jre/bin/keytool -list -v -keystore {}  -storepass {} | grep Owner'.format(oxd_yaml['server']['applicationConnectors'][0]['keyStorePath'], oxd_yaml['server']['applicationConnectors'][0]['keyStorePassword'])).read()
+            r = os.popen('{} -list -v -keystore {}  -storepass {} | grep Owner'.format(Config.cmd_keytool, oxd_yaml['server']['applicationConnectors'][0]['keyStorePath'], oxd_yaml['server']['applicationConnectors'][0]['keyStorePassword'])).read()
             for l in r.splitlines():
                 res = re.search('CN=(.*?.),', l)
                 if res:
                     cert_cn = res.groups()[0]
                     if cert_cn != Config.hostname:
-                        self.setupObj.run([
-                            self.setupObj.opensslCommand,
-                            'req', '-x509', '-newkey', 'rsa:4096', '-nodes',
-                            '-out', '/tmp/oxd.crt',
-                            '-keyout', '/tmp/oxd.key',
-                            '-days', '3650',
-                            '-subj', '/C={}/ST={}/L={}/O={}/CN={}/emailAddress={}'.format(self.setupObj.countryCode, self.setupObj.state, self.setupObj.city, self.setupObj.orgName, self.setupObj.hostname, self.setupObj.admin_email),
-                            ])
-
-                        self.setupObj.run([
-                            self.setupObj.opensslCommand,
-                            'pkcs12', '-export',
-                            '-in', '/tmp/oxd.crt',
-                            '-inkey', '/tmp/oxd.key',
-                            '-out', '/tmp/oxd.p12',
-                            '-name', self.setupObj.hostname,
-                            '-passout', 'pass:example'
-                            ])
-
-                        self.setupObj.run([
-                            self.setupObj.cmd_keytool,
-                            '-importkeystore',
-                            '-deststorepass', 'example',
-                            '-destkeypass', 'example',
-                            '-destkeystore', '/tmp/oxd.keystore',
-                            '-srckeystore', '/tmp/oxd.p12',
-                            '-srcstoretype', 'PKCS12',
-                            '-srcstorepass', 'example',
-                            '-alias', self.setupObj.hostname,
-                            ])
-
-                        self.setupObj.backupFile(oxd_yaml['server']['applicationConnectors'][0]['keyStorePath'])
-                        self.setupObj.run(['cp', '-f', '/tmp/oxd.keystore', oxd_yaml['server']['applicationConnectors'][0]['keyStorePath']])
-                        self.setupObj.run(['chown', 'jetty:jetty', oxd_yaml['server']['applicationConnectors'][0]['keyStorePath']])
-
-                        for f in ('/tmp/oxd.crt', '/tmp/oxd.key', '/tmp/oxd.p12', '/tmp/oxd.keystore'):
-                            self.setupObj.run(['rm', '-f', f])
+                        self.backupFile(oxd_yaml['server']['applicationConnectors'][0]['keyStorePath'])
+                        oxdInstaller.generate_keystore()
+                        import_cert = True
                         
-            print("Restarting oxd-server")
-            self.setupObj.run_service_command('oxd-server', 'stop')
-            self.setupObj.run_service_command('oxd-server', 'start')
-
+        print("Restarting oxd-server")
+        oxdInstaller.restart()
+    
+        if import_cert:
             print("Importing oxd certificate to cacerts")        
-            self.setupObj.import_oxd_certificate()
+            casaInstaller.import_oxd_certificate()
 
     def update_casa(self):
         
-        if not os.path.exists(self.casa_base_dir):
+        if not os.path.exists(casaInstaller.casa_jetty_dir):
             return
 
         print("Updating casa")
         casa_config_dn = 'ou=casa,ou=configuration,o=gluu'
         casa_config_json = {}
-        casa_cors_domains_fn = os.path.join(self.casa_base_dir, 'casa-cors-domains')
-        casa_config_json_fn = os.path.join(self.setupObj.configFolder, 'casa.json')
+        casa_cors_domains_fn = os.path.join(casaInstaller.casa_jetty_dir, 'casa-cors-domains')
+        casa_config_json_fn = os.path.join(Config.configFolder, 'casa.json')
 
         if os.path.exists(casa_config_json_fn):
-            casa_config_json_s = self.setupObj.readFile(casa_config_json_fn)
+            casa_config_json_s = self.readFile(casa_config_json_fn)
             casa_config_json = json.loads(casa_config_json_s)
 
             if os.path.exists(casa_cors_domains_fn):
-                casa_cors_domains = self.setupObj.readFile(casa_cors_domains_fn)
+                casa_cors_domains = self.readFile(casa_cors_domains_fn)
                 casa_cors_domains_list = [l.strip() for l in casa_cors_domains.splitlines()]
                 casa_config_json['allowed_cors_domains'] = casa_cors_domains_list
 
-        casa_plugins_dir = os.path.join(self.casa_base_dir, 'plugins')
-        self.setupObj.run_service_command('casa', 'stop')
+        casa_plugins_dir = os.path.join(casaInstaller.casa_jetty_dir, 'plugins')
+        casaInstaller.stop()
         
-        self.setupObj.run(['cp', '-f', os.path.join(self.app_dir, 'casa.war'),
-                                    os.path.join(self.casa_base_dir, 'webapps')])
+        self.run(['cp', '-f', os.path.join(Config.distGluuFolder, 'casa.war'),
+                                    os.path.join(casaInstaller.casa_jetty_dir, 'webapps')])
 
         account_linking = None
         
@@ -536,19 +517,19 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                     n = ls.find(':')
                     pid = ls[n+1:].strip()
                     if pid in self.casa_plugins:
-                        jar_fn = os.path.join(self.app_dir, pid + '.jar')
-                        self.setupObj.run(['rm', '-f', plugin])
-                        self.setupObj.run(['cp', '-f', jar_fn, casa_plugins_dir])
+                        jar_fn = os.path.join(Config.distGluuFolder, pid + '.jar')
+                        self.run(['rm', '-f', plugin])
+                        self.run(['cp', '-f', jar_fn, casa_plugins_dir])
                     if pid == 'account-linking':
                         account_linking = True
 
         if account_linking:
-            self.setupObj.copyFile(
-                    os.path.join(self.app_dir, 'casa.xhtml'),
-                    os.path.join(self.setupObj.jetty_base, 'oxauth/custom/pages')
+            self.copyFile(
+                    os.path.join(Config.distGluuFolder, 'casa.xhtml'),
+                    os.path.join(Config.jetty_base, 'oxauth/custom/pages')
                     )
             
-            scr = self.setupObj.readFile(os.path.join(self.app_dir, 'casa.py'))
+            scr = self.readFile(os.path.join(Config.distGluuFolder, 'casa.py'))
 
             
             dbUtils.ldap_conn.modify(
@@ -595,9 +576,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                         {'oxConfApplication':  [ldap3.MODIFY_REPLACE, casa_config_json_s]}
                         )
 
-
-            self.setupObj.backupFile(casa_config_json_fn)
-            #self.setupObj.run(['rm', '-f', casa_config_json_fn])
+            self.backupFile(casa_config_json_fn, move=True)
 
 
         def fix_oxConfApplication(oxConfApplication):
@@ -633,8 +612,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
 
             self.casa_oxd_host = oxConfApplication['oxd_config']['host']
 
-
-        self.setupObj.oxd_server_https = 'https://{}:{}'.format(oxConfApplication['oxd_config']['host'], oxConfApplication['oxd_config']['port'])
+        Config.oxd_server_https = 'https://{}:{}'.format(oxConfApplication['oxd_config']['host'], oxConfApplication['oxd_config']['port'])
 
     def update_passport(self):
 
@@ -808,7 +786,6 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 self.writeFile(default_fn, default_)
 
 updaterObj = GluuUpdater()
-
 updaterObj.prepare_persist_changes()
 updaterObj.fix_gluu_config()
 updaterObj.update_ldap()
@@ -823,15 +800,14 @@ updaterObj.update_war_files()
 updaterObj.update_shib()
 updaterObj.update_passport()
 updaterObj.update_radius()
-
+updaterObj.update_casa()
+updaterObj.update_oxd()
 
 """
 import code
 code.interact(local=locals())
 sys.exit()
 
-updaterObj.update_casa()
-updaterObj.update_oxd()
 updaterObj.add_oxAuthUserId_pairwiseIdentifier()
 updaterObj.fix_fido2()
 updaterObj.setupObj.deleteLdapPw()
