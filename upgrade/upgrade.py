@@ -404,7 +404,6 @@ class GluuUpdater(BaseInstaller, SetupUtils):
             self.writeFile(os.path.join('/opt/shibboleth-idp/conf', prop_fn), properties)
 
         self.run(['cp', '-f', '/opt/dist/gluu/upgrades/saml-nameid.properties.vm', '/opt/gluu/jetty/identity/conf/shibboleth3/idp/'])
-        self.run(['chown', '-R', 'jetty:jetty', '/opt/shibboleth-idp'])
 
     def update_radius(self):
 
@@ -508,11 +507,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 casa_config_json['allowed_cors_domains'] = casa_cors_domains_list
 
         casa_plugins_dir = os.path.join(casaInstaller.casa_jetty_dir, 'plugins')
-        casaInstaller.stop()
-        
-        self.run(['cp', '-f', os.path.join(Config.distGluuFolder, 'casa.war'),
-                                    os.path.join(casaInstaller.casa_jetty_dir, 'webapps')])
-
+    
         account_linking = None
         
         # update plugins
@@ -657,6 +652,9 @@ class GluuUpdater(BaseInstaller, SetupUtils):
         log_file = os.path.join(log_dir, 'start.log')
         open(log_file,'w').close()
 
+        print("Starting passport server")
+        passportInstaller.start()
+
     def add_oxAuthUserId_pairwiseIdentifier(self):
 
         print("Adding oxAuthUserId to pairwiseIdentifier.")
@@ -756,11 +754,11 @@ updaterObj.update_scripts()
 updaterObj.updateAttributes()
 updaterObj.update_scopes()
 updaterObj.update_default_settings()
-updaterObj.update_war_files()
 updaterObj.update_shib()
-updaterObj.update_passport()
 updaterObj.update_radius()
 updaterObj.update_casa()
+updaterObj.update_war_files()
+updaterObj.update_passport()
 updaterObj.update_oxd()
 updaterObj.add_oxAuthUserId_pairwiseIdentifier()
 
