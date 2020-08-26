@@ -12,6 +12,9 @@ import zipfile
 import ruamel.yaml
 import tarfile
 
+from ldap3.utils import dn as dnutils
+
+
 #TODO: check if upgrade is needed
 
 result = input("Starting upgrade. CONTINUE? (y|N): ")
@@ -49,6 +52,8 @@ from setup_app.installers.saml import SamlInstaller
 from setup_app.installers.passport import PassportInstaller
 from setup_app.installers.casa import CasaInstaller
 from setup_app.installers.oxd import OxdInstaller
+from setup_app.installers.fido import FidoInstaller
+
 
 Config.init(paths.INSTALL_DIR)
 Config.determine_version()
@@ -71,7 +76,7 @@ samlInstaller = SamlInstaller()
 passportInstaller = PassportInstaller()
 casaInstaller = CasaInstaller()
 oxdInstaller = OxdInstaller()
-
+fidoInstaller = FidoInstaller()
 jetty_temp = os.path.join(snap_common_dir, 'gluu/jetty/temp')
 if not os.path.exists(jetty_temp):
     os.makedirs(jetty_temp, exist_ok=True)
@@ -316,9 +321,9 @@ class GluuUpdater(BaseInstaller, SetupUtils):
     def update_scripts(self):
         print("Updating Scripts")
 
-        #TODO: add scripts 
-        #if os.path.exists(os.path.join(Config.gluuOptFolder, 'node/passport')):
-        #    Config.enable_scim_access_policy = 'true'
+        if os.path.exists(os.path.join(Config.gluuOptFolder, 'node/passport')):
+            print("Enable acim access policiy")
+            Config.enable_scim_access_policy = 'true'
 
         self.prepare_base64_extension_scripts()
         ldif_scripts = os.path.join(Config.outputFolder, 'scripts.ldif')
@@ -328,17 +333,20 @@ class GluuUpdater(BaseInstaller, SetupUtils):
         parser = ldif_utils.myLdifParser(ldif_scripts)
         parser.parse()
 
-        #TODO: do later
-        #if os.path.exists(self.casa_base_dir):
-        #    self.setupObj.renderTemplate(self.setupObj.ldif_scripts_casa)
-        #    ldif_casa_scripts_fn = os.path.join(self.setupObj.outputFolder, os.path.basename(self.setupObj.ldif_scripts_casa))
-        #    self.setupObj.logIt("Parsing", ldif_casa_scripts_fn)
-        #    print("Parsing", ldif_casa_scripts_fn)
-        #    casa_scripts_parser = self.myLdifParser(ldif_casa_scripts_fn)
-        #    casa_scripts_parser.parse()
-        #    for e in casa_scripts_parser.entries:
-        #        print("Adding casa script", e[0])
-        #        self.parser.entries.append(e)
+        if os.path.exists(casaInstaller.casa_jetty_dir):
+            
+            scripts_template = os.path.join(casaInstaller.templates_folder, os.path.basename(casaInstaller.ldif_scripts))
+            extensions = base.find_script_names(scripts_template)
+            self.prepare_base64_extension_scripts(extensions=extensions)
+            self.renderTemplateInOut(casaInstaller.ldif_scripts, casaInstaller.templates_folder, casaInstaller.output_folder)
+
+            self.logIt("Parsing", casaInstaller.ldif_scripts)
+            print("Parsing", casaInstaller.ldif_scripts)
+            casa_scripts_parser = ldif_utils.myLdifParser(casaInstaller.ldif_scripts)
+            casa_scripts_parser.parse()
+            for e in casa_scripts_parser.entries:
+                print("Adding casa script", e[0])
+                parser.entries.append(e)
 
         for dn, entry in parser.entries:
             print("Updating script", dn)
@@ -672,54 +680,6 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                                 {'oxAuthUserId': [ldap3.MODIFY_ADD, oxAuthUserId]}
                                 )
 
-
-    def fix_fido2(self):
-
-        self.setupObj.renderTemplate(self.setupObj.fido2_dynamic_conf_json)
-        self.setupObj.renderTemplate(self.setupObj.fido2_static_conf_json)
-
-        self.setupObj.templateRenderingDict['fido2_dynamic_conf_base64'] = self.setupObj.generate_base64_ldap_file(self.setupObj.fido2_dynamic_conf_json)
-        self.setupObj.templateRenderingDict['fido2_static_conf_base64'] = self.setupObj.generate_base64_ldap_file(self.setupObj.fido2_static_conf_json)
-        self.setupObj.renderTemplate(self.setupObj.ldif_fido2)
-
-        self.setupObj.run(['cp', self.setupObj.ldif_fido2, '/tmp'])
-        ldif_fido2 = os.path.join('/tmp', os.path.basename(self.setupObj.ldif_fido2))
-
-
-        dbUtils.ldap_conn.search(
-                search_base='ou=fido2,ou=configuration,o=gluu', 
-                search_scope=ldap3.BASE, 
-                search_filter='(objectClass=*)', 
-                attributes=['*']
-                )
-        if not dbUtils.ldap_conn.response:
-            print("Importing fido2 configuration ldif")
-            self.setupObj.import_ldif_opendj([ldif_fido2])
-
-        dbUtils.ldap_conn.search(
-                    search_base='ou=people,o=gluu', 
-                    search_scope=ldap3.SUBTREE, 
-                    search_filter='(objectclass=oxDeviceRegistration)', 
-                    attributes=['*']
-                    )
-
-        result = dbUtils.ldap_conn.response
-        if result:
-            print("Populating personInum for fido2 entries. Number of entries: {}".format(len(result)))
-            for entry in result:
-                dn = entry['dn']
-                if not 'personInum' in entry['attributes']:
-                    for dnr in dnutils.parse_dn(dn):
-                        if dnr[0] == 'inum':
-                            inum = dnr[1]
-                            dbUtils.ldap_conn.modify(
-                                    dn, 
-                                    {'personInum': [ldap3.MODIFY_ADD, inum]}
-                                    )
-                            break
-
-
-
     def updateAttributes(self):
 
         attributes_ldif_fn = os.path.join(ces_dir, 'templates/attributes.ldif')
@@ -757,7 +717,6 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 dbUtils.ldap_conn.add(dn, attributes=entry)
 
 
-
     def update_scopes(self):
 
         ldif_fn = os.path.join(ces_dir, 'templates/scopes.ldif')
@@ -786,6 +745,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 self.writeFile(default_fn, default_)
 
 updaterObj = GluuUpdater()
+
 updaterObj.prepare_persist_changes()
 updaterObj.fix_gluu_config()
 updaterObj.update_ldap()
@@ -802,15 +762,10 @@ updaterObj.update_passport()
 updaterObj.update_radius()
 updaterObj.update_casa()
 updaterObj.update_oxd()
-
-"""
-import code
-code.interact(local=locals())
-sys.exit()
-
 updaterObj.add_oxAuthUserId_pairwiseIdentifier()
-updaterObj.fix_fido2()
-updaterObj.setupObj.deleteLdapPw()
-"""
+
+#import code
+#code.interact(local=locals())
+#sys.exit()
 
 print("\nUpgrade is finished. Please examine\n{}\nif something went wrong".format(paths.LOG_ERROR_FILE))
