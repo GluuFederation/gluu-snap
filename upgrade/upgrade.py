@@ -6,6 +6,8 @@ import code
 import time
 import ldap3
 import json
+import glob
+import re
 
 #TODO: check if upgrade is needed
 
@@ -41,6 +43,7 @@ from setup_app.installers.httpd import HttpdInstaller
 from setup_app.installers.jetty import JettyInstaller
 from setup_app.installers.node import NodeInstaller
 from setup_app.installers.saml import SamlInstaller
+from setup_app.installers.passport import PassportInstaller
 
 Config.init(paths.INSTALL_DIR)
 Config.determine_version()
@@ -60,6 +63,7 @@ jettyInstaller.calculate_selected_aplications_memory()
 Config.templateRenderingDict['jetty_dist'] = Config.jetty_base
 
 samlInstaller = SamlInstaller()
+passportInstaller = PassportInstaller()
 
 jetty_temp = os.path.join(snap_common_dir, 'gluu/jetty/temp')
 if not os.path.exists(jetty_temp):
@@ -637,38 +641,25 @@ class GluuUpdater(BaseInstaller, SetupUtils):
 
     def update_passport(self):
 
-        if not os.path.exists(self.setupObj.gluu_passport_base):
+        if not os.path.exists(passportInstaller.gluu_passport_base):
             return
 
-        backup_folder = self.setupObj.gluu_passport_base + '_' + self.backup_time
-
-        self.setupObj.run(['mv', self.setupObj.gluu_passport_base, backup_folder])
-
+        backup_folder = passportInstaller.gluu_passport_base + '-back.' + os.urandom(3).hex() + '~'
         print("Updating Passport")
-        
         print("Stopping passport server")
-        
-        self.setupObj.run_service_command('passport', 'stop')
+        passportInstaller.stop()
 
-        self.setupObj.run(['mkdir', '-p', self.setupObj.gluu_passport_base])
+        self.run(['mv', passportInstaller.gluu_passport_base, backup_folder])
 
-        print("Extracting passport.tgz into " + self.setupObj.gluu_passport_base) 
-        self.setupObj.run(['tar', '--strip', '1', '-xzf', os.path.join(cur_dir, 'app', 'passport.tgz'),
-                         '-C', '/opt/gluu/node/passport', '--no-xattrs', '--no-same-owner', '--no-same-permissions'])
+        self.run(['mkdir', '-p', passportInstaller.gluu_passport_base])
+
+        passportInstaller.extract_passport()
+        passportInstaller.extract_modules()
     
-        print("Extracting passport node modules")
-        modules_dir = os.path.join(self.setupObj.gluu_passport_base, 'node_modules')
-
-        if not os.path.exists(modules_dir):
-            self.setupObj.run(['mkdir', '-p', modules_dir])
-
-        self.setupObj.run(['tar', '--strip', '1', '-xzf', os.path.join(cur_dir, 'app', 'passport-node_modules.tar.gz'),
-                         '-C', modules_dir, '--no-xattrs', '--no-same-owner', '--no-same-permissions'])
-
-        log_dir = '/opt/gluu/node/passport/server/logs'
+        log_dir = os.path.join(passportInstaller.gluu_passport_base, 'logs')
 
         if not os.path.exists(log_dir): 
-            self.setupObj.run(['mkdir',log_dir])
+            self.run(['mkdir',log_dir])
 
         # copy mappings
         for m_path in glob.glob(os.path.join(backup_folder, 'server/mappings/*.js')):
@@ -676,15 +667,12 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                 fc = f.read()
                 if re.search('profile["[\s\S]*"]', fc):
                     mfn = os.path.basename(m_path)
-                    if not os.path.exists(os.path.join(self.setupObj.gluu_passport_base, 'server/mappings', mfn)):
-                        self.setupObj.copyFile(m_path, os.path.join(self.setupObj.gluu_passport_base, 'server/mappings'))
+                    if not os.path.exists(os.path.join(passportInstaller.gluu_passport_base, 'server/mappings', mfn)):
+                        self.copyFile(m_path, os.path.join(passportInstaller.gluu_passport_base, 'server/mappings'))
 
         #create empty log file
         log_file = os.path.join(log_dir, 'start.log')
         open(log_file,'w').close()
-
-        self.setupObj.run(['chown', '-R', 'node:node', '/opt/gluu/node/passport/'])
-
 
     def add_oxAuthUserId_pairwiseIdentifier(self):
 
@@ -836,6 +824,7 @@ updaterObj.update_scopes()
 updaterObj.update_default_settings()
 updaterObj.update_war_files()
 updaterObj.update_shib()
+updaterObj.update_passport()
 
 
 """
@@ -843,7 +832,8 @@ import code
 code.interact(local=locals())
 sys.exit()
 
-updaterObj.update_passport()
+
+
 updaterObj.update_radius()
 updaterObj.update_casa()
 updaterObj.update_oxd()
