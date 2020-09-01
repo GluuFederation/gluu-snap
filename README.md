@@ -52,7 +52,9 @@ $ sudo yum install epel-release
 $ sudo yum -y install snapd
 $ sudo ln -s /var/lib/snapd/snap /snap
 $ sudo systemctl enable --now snapd.socket
+$ sudo yum install mailcap
 ```
+**Disable SELINUX** and reboot
 
 ## Install Gluu Server
 
