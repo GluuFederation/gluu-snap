@@ -58,7 +58,7 @@ if not '-e' in sys.argv:
     download('https://repo1.maven.org/maven2/com/twilio/sdk/twilio/{0}/twilio-{0}.jar'.format(app_versions['TWILIO_VERSION']), 'casa/twilio-{0}.jar'.format(app_versions['TWILIO_VERSION']))
     download('https://repo1.maven.org/maven2/org/jsmpp/jsmpp/{0}/jsmpp-{0}.jar'.format(app_versions['JSMPP_VERSION']), 'casa/jsmpp-{0}.jar'.format(app_versions['JSMPP_VERSION']))
     download('https://github.com/GluuFederation/casa/raw/version_{}/extras/casa.pub'.format(app_versions['OX_VERSION']), 'casa/casa.pub')
-    download('https://raw.githubusercontent.com/GluuFederation/casa/master/plugins/account-linking/extras/casa.xhtml', 'casa/casa.xhtml')
+    download('https://raw.githubusercontent.com/GluuFederation/casa/master/plugins/account-linking/extras/login.xhtml', 'casa/login.xhtml')
     download('https://raw.githubusercontent.com/GluuFederation/casa/master/plugins/account-linking/extras/casa.py', 'casa/casa.py')
     download('https://raw.githubusercontent.com/GluuFederation/gluu-snap/master/facter/facter', 'facter/facter')
     download('https://ox.gluu.org/maven/org/gluu/scim-server/{0}{1}/scim-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'scim/scim.war')
