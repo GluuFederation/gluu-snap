@@ -74,6 +74,16 @@ Installing gluu snap package is trivial (please change `<version>` that matches 
 $ sudo snap install gluu-server_<version>_amd64.snap --dangerous
 ```
 
+---
+**Important**
+
+Do connect `mount-observe` plug:
+
+```
+sudo snap connect gluu-server:mount-observe :mount-observe
+```
+
+---
 
 
 After installing, you can run setup as follows:
