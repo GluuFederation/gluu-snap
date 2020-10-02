@@ -400,6 +400,7 @@ apps:
     stop-command: usr/sbin/apache2 -d $SNAP_COMMON/etc/apache2 -k stop
     daemon: forking
     restart-condition: always
+    before: [opendj]
     plugs:
       - network
       - network-bind
@@ -464,6 +465,7 @@ apps:
      - network
      - network-bind
     daemon: forking
+    after: [identity]
     restart-condition: never
     command: gluu-opt/dist/scripts/idp start
     stop-command: gluu-opt/dist/scripts/idp stop
@@ -478,6 +480,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/oxauth-rp start
     stop-command: gluu-opt/dist/scripts/oxauth-rp stop
 
@@ -491,6 +494,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxd-server]
     command: gluu-opt/dist/scripts/casa start
     stop-command: gluu-opt/dist/scripts/casa stop
 
@@ -504,6 +508,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/scim start
     stop-command: gluu-opt/dist/scripts/scim stop
 
@@ -517,6 +522,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/fido2 start
     stop-command: gluu-opt/dist/scripts/fido2 stop
 
@@ -529,6 +535,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/passport start
     stop-command: gluu-opt/dist/scripts/passport stop
 
@@ -542,6 +549,7 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/gluu-radius start
     stop-command: gluu-opt/dist/scripts/gluu-radius stop
 
@@ -554,5 +562,6 @@ apps:
      - network-bind
     daemon: forking
     restart-condition: never
+    after: [oxauth]
     command: gluu-opt/dist/scripts/oxd-server start
     stop-command: gluu-opt/dist/scripts/oxd-server stop
