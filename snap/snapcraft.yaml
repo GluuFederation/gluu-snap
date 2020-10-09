@@ -429,6 +429,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/oxauth/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
@@ -443,6 +444,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/identity/run"
+      JETTY_HOME: "/opt/jetty"
       PYTHONWARNINGS: "ignore"
     plugs:
      - network
@@ -461,6 +463,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/idp/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
@@ -475,6 +478,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/oxauth-rp/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
@@ -489,6 +493,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/casa/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
@@ -503,6 +508,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/scim/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
@@ -517,6 +523,7 @@ apps:
       JAVA_HOME: "/opt/jre"
       JAVA: "/opt/jre/bin/java"
       JETTY_RUN: "/opt/gluu/jetty/fido2/run"
+      JETTY_HOME: "/opt/jetty"
     plugs:
      - network
      - network-bind
