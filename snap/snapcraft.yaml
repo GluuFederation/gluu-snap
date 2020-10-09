@@ -360,6 +360,9 @@ apps:
     plugs:
      - network
      - network-bind
+     - network-observe
+     - mount-observe
+     - system-observe
     command: bin/python3
 
   setup:
@@ -369,6 +372,9 @@ apps:
     plugs:
      - network
      - network-bind
+     - network-observe
+     - mount-observe
+     - system-observe
     command: bin/python3 $SNAP_COMMON/install/community-edition-setup/setup.py
 
 
