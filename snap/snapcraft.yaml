@@ -182,7 +182,7 @@ parts:
       fi
       if [ ! -f "$SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak" ]; then
         mv $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/cacerts.bak
-        cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/; ln -s /etc/certs/java-cacerts cacerts
+        #cd $SNAPCRAFT_PRIME/gluu-opt/jre/jre/lib/security/; ln -s /etc/certs/java-cacerts cacerts
       fi
 
   jetty:
