@@ -1,5 +1,5 @@
 name: gluu-server
-version: "4.2.1"
+version: "4.2.2"
 summary: Central authentication and authorization for web and mobile applications.
 description: |
   Identity & access management (IAM) platform for web & mobile single sign-on (SSO),
