@@ -16,8 +16,6 @@ layout:
       symlink: $SNAP/gluu-opt/jetty
     /opt/opendj:
       symlink: $SNAP/gluu-opt/opendj
-    /opt/node:
-      symlink: $SNAP/gluu-opt/node
     /opt/oxd-server:
       symlink: $SNAP_COMMON/gluu/oxd-server
     /etc/gluu:
@@ -44,8 +42,6 @@ layout:
       symlink: $SNAP_COMMON/var/www/html
     /etc/ssl/openssl.cnf:
       bind-file: $SNAP/etc/ssl/openssl.cnf
-    /opt/shibboleth-idp:
-      symlink: $SNAP_COMMON/gluu/shibboleth-idp
     /usr/bin/facter:
       symlink: $SNAP/usr/bin/facter
 
@@ -107,13 +103,6 @@ parts:
     source-type: local
     organize:
       "*" : /gluu-opt/dist/gluu/
-
-  upgrade-files:
-    plugin: dump
-    source: apps/upgrades/
-    source-type: local
-    organize:
-      "*" : /gluu-opt/dist/gluu/upgrades/
 
   opendj:
     plugin: dump
@@ -210,13 +199,6 @@ parts:
         rm $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/jython-installer.jar
       fi
 
-  node:
-    plugin: dump
-    source: apps/node/node.tar.xz
-    source-type: tar
-    organize:
-      "*" : gluu-opt/node/
-
   oxauth:
     plugin: dump
     after: [jetty]
@@ -239,28 +221,6 @@ parts:
     override-prime: |
       snapcraftctl prime
       cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/identity
-
-  oxauth-rp:
-    plugin: dump
-    after: [identity]
-    source: apps/oxauth-rp
-    source-type: local
-    organize:
-      "*" : /gluu-opt/dist/gluu/
-    override-prime: |
-      snapcraftctl prime
-      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxauth-rp
-
-  idp:
-    plugin: dump
-    after: [identity]
-    source: apps/idp
-    source-type: local
-    organize:
-      "*" : /gluu-opt/dist/gluu/
-    override-prime: |
-      snapcraftctl prime
-      cp $SNAPCRAFT_PRIME/gluu-opt/jetty/bin/jetty.sh $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/idp
 
   casa:
     plugin: dump
@@ -306,32 +266,6 @@ parts:
       mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/oxd-server $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
       chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/oxd-server
 
-  passport:
-    plugin: dump
-    source: apps/passport
-    source-type: local
-    organize:
-      "*" : /gluu-opt/dist/gluu/
-    override-prime: |
-      snapcraftctl prime
-      mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/passport $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
-      chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/passport
-
-  gluu-radius:
-    plugin: dump
-    source: apps/radius
-    source-type: local
-    organize:
-      "*" : /gluu-opt/dist/gluu/
-    override-prime: |
-      snapcraftctl prime
-      if [ ! -d "$SNAPCRAFT_PRIME/gluu-opt/dist/scripts" ]; then
-        mkdir -p $SNAPCRAFT_PRIME/gluu-opt/dist/scripts
-      fi
-      mv $SNAPCRAFT_PRIME/gluu-opt/dist/gluu/gluu-radius $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
-      chmod +x $SNAPCRAFT_PRIME/gluu-opt/dist/scripts/gluu-radius
-
-
 
 
 apps:
@@ -369,6 +303,7 @@ apps:
     environment:
       PYTHONPATH: "$SNAP/usr/lib/python3/dist-packages"
       PYTHONUTF8: "1"
+      GLUU_SERVICES: "installHttpd installOxd installCasa installScimServer installFido2"
     plugs:
      - network
      - network-bind
@@ -464,35 +399,6 @@ apps:
     command: gluu-opt/dist/scripts/identity start
     stop-command: gluu-opt/dist/scripts/identity stop
 
-  idp:
-    environment:
-      JAVA_HOME: "/opt/jre"
-      JAVA: "/opt/jre/bin/java"
-      JETTY_RUN: "/opt/gluu/jetty/idp/run"
-      JETTY_HOME: "/opt/jetty"
-    plugs:
-     - network
-     - network-bind
-    daemon: forking
-    after: [identity]
-    restart-condition: never
-    command: gluu-opt/dist/scripts/idp start
-    stop-command: gluu-opt/dist/scripts/idp stop
-
-  oxauth-rp:
-    environment:
-      JAVA_HOME: "/opt/jre"
-      JAVA: "/opt/jre/bin/java"
-      JETTY_RUN: "/opt/gluu/jetty/oxauth-rp/run"
-      JETTY_HOME: "/opt/jetty"
-    plugs:
-     - network
-     - network-bind
-    daemon: forking
-    restart-condition: never
-    after: [oxauth]
-    command: gluu-opt/dist/scripts/oxauth-rp start
-    stop-command: gluu-opt/dist/scripts/oxauth-rp stop
 
   casa:
     environment:
@@ -539,32 +445,6 @@ apps:
     command: gluu-opt/dist/scripts/fido2 start
     stop-command: gluu-opt/dist/scripts/fido2 stop
 
-  passport:
-    environment:
-      NODE_USER: "root"
-      NODE_PID_FILE: "/opt/gluu/node/passport.pid"
-    plugs:
-     - network
-     - network-bind
-    daemon: forking
-    restart-condition: never
-    after: [oxauth]
-    command: gluu-opt/dist/scripts/passport start
-    stop-command: gluu-opt/dist/scripts/passport stop
-
-  gluu-radius:
-    environment:
-      RADIUS_RUN: "/opt/gluu/radius/run"
-      GLUU_RADIUS_USER: "root"
-      GLUU_RADIUS_GROUP: "root"
-    plugs:
-     - network
-     - network-bind
-    daemon: forking
-    restart-condition: never
-    after: [oxauth]
-    command: gluu-opt/dist/scripts/gluu-radius start
-    stop-command: gluu-opt/dist/scripts/gluu-radius stop
 
   oxd-server:
     environment:
