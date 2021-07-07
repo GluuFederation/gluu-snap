@@ -33,7 +33,7 @@ paths.LOG_FILE = os.path.join(ces_dir, 'logs/upgrade421.log')
 paths.LOG_ERROR_FILE = os.path.join(ces_dir, 'logs/upgrade421_error.log')
 paths.LOG_OS_CHANGES_FILE = os.path.join(ces_dir, 'logs/upgrade421_os-changes.log')
 
-print("Starting WrenDS")
+print("Starting LDAP Server")
 os.system('snapctl restart {}.opendj'.format(os.environ['SNAP_NAME']))
 
 from setup_app import static
@@ -254,15 +254,16 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                         attributes=[config_element]
                     )
             result = dbUtils.ldap_conn.response
-            sdn = result[0]['dn']
-            js_conf = json.loads(result[0]['attributes'][config_element][0])
-            self.apply_persist_changes(js_conf, self.persist_changes[(config_element, config_dn)])
-            new_conf = json.dumps(js_conf,indent=4)
+            if result and result[0].get('dn'):
+                sdn = result[0]['dn']
+                js_conf = json.loads(result[0]['attributes'][config_element][0])
+                self.apply_persist_changes(js_conf, self.persist_changes[(config_element, config_dn)])
+                new_conf = json.dumps(js_conf,indent=4)
 
-            dbUtils.ldap_conn.modify(
-                            sdn, 
-                            {config_element: [ldap3.MODIFY_REPLACE, new_conf]}
-                            )
+                dbUtils.ldap_conn.modify(
+                                sdn, 
+                                {config_element: [ldap3.MODIFY_REPLACE, new_conf]}
+                                )
 
         dbUtils.ldap_conn.search(
                     search_base=dn, 
@@ -272,9 +273,9 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                     )
         
         result = dbUtils.ldap_conn.response
-        
+
         remove_list = []
-        
+
         for k in result[0]['attributes']:
             if result[0]['attributes'][k]:
                     dbUtils.ldap_conn.modify(
@@ -302,7 +303,7 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                             os.path.join(Config.ldapBaseFolder, 'config/schema')
                             ])
 
-        print("Restarting WrenDS ...")
+        print("Restarting LDAP Server ...")
         self.restart('opendj')
         dbUtils.ldap_conn.bind()
 
@@ -445,7 +446,6 @@ class GluuUpdater(BaseInstaller, SetupUtils):
         oxd_yaml = ruamel.yaml.load(yml_str, ruamel.yaml.RoundTripLoader)
 
         ip = self.detect_ip()
-        import_cert = False
         if os.path.exists(casaInstaller.casa_jetty_dir) and hasattr(self, 'casa_oxd_host') and getattr(self, 'casa_oxd_host') in (Config.hostname, ip):
 
             write_oxd_yaml = False
@@ -477,17 +477,16 @@ class GluuUpdater(BaseInstaller, SetupUtils):
                     if cert_cn != Config.hostname:
                         self.backupFile(oxd_yaml['server']['applicationConnectors'][0]['keyStorePath'])
                         oxdInstaller.generate_keystore()
-                        import_cert = True
-                        
+
         print("Restarting oxd-server")
-        oxdInstaller.restart()
-    
-        if import_cert:
-            print("Importing oxd certificate to cacerts")        
-            casaInstaller.import_oxd_certificate()
+        self.restart('oxd-server')
+        time.sleep(5)
+        Config.oxd_server_https = 'https://{}:8443'.format(Config.hostname)
+        print("Importing oxd certificate to cacerts")
+        casaInstaller.import_oxd_certificate()
 
     def update_casa(self):
-        
+
         if not os.path.exists(casaInstaller.casa_jetty_dir):
             return
 
@@ -754,12 +753,13 @@ updaterObj.update_scripts()
 updaterObj.updateAttributes()
 updaterObj.update_scopes()
 updaterObj.update_default_settings()
+updaterObj.update_oxd()
 updaterObj.update_shib()
 updaterObj.update_radius()
 updaterObj.update_casa()
 updaterObj.update_war_files()
 updaterObj.update_passport()
-updaterObj.update_oxd()
+
 updaterObj.add_oxAuthUserId_pairwiseIdentifier()
 
 #import code

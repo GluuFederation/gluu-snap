@@ -47,13 +47,6 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/oxtrust-server/{0}{1}/oxtrust-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'identity/identity.war')
     download('https://ox.gluu.org/maven/org/gluufederation/opendj/opendj-server-legacy/{0}/opendj-server-legacy-{0}.zip'.format(app_versions['OPENDJ_VERSION']), 'opendj/opendj-server.zip')
     download('https://ox.gluu.org/maven/org/gluu/oxauth-client/{0}{1}/oxauth-client-{0}{1}-jar-with-dependencies.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth/oxauth-client-jar-with-dependencies.jar')
-    download('https://ox.gluu.org/maven/org/gluu/oxShibbolethStatic/{0}{1}/oxShibbolethStatic-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/shibboleth-idp.jar')
-    download('https://ox.gluu.org/maven/org/gluu/oxshibbolethIdp/{0}{1}/oxshibbolethIdp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'idp/idp.war')
-    download('https://ox.gluu.org/npm/passport/passport-{}.tgz'.format(app_versions['OX_VERSION']), 'passport/passport.tgz')
-    download('https://ox.gluu.org/npm/passport/passport-version_{}-node_modules.tar.gz'.format(app_versions['PASSPORT_NODE_VERSION']), 'passport/passport-node_modules.tar.gz')
-    download('https://nodejs.org/dist/{0}/node-{0}-linux-x64.tar.xz'.format(app_versions['NODE_VERSION']), 'node/node.tar.xz')
-    download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}.jar'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/super-gluu-radius-server.jar')
-    download('https://ox.gluu.org/maven/org/gluu/super-gluu-radius-server/{0}{1}/super-gluu-radius-server-{0}{1}-distribution.zip'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'radius/gluu-radius-libs.zip')
     download('https://ox.gluu.org/maven/org/gluu/casa/{0}{1}/casa-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'casa/casa.war')
     download('https://repo1.maven.org/maven2/com/twilio/sdk/twilio/{0}/twilio-{0}.jar'.format(app_versions['TWILIO_VERSION']), 'casa/twilio-{0}.jar'.format(app_versions['TWILIO_VERSION']))
     download('https://repo1.maven.org/maven2/org/jsmpp/jsmpp/{0}/jsmpp-{0}.jar'.format(app_versions['JSMPP_VERSION']), 'casa/jsmpp-{0}.jar'.format(app_versions['JSMPP_VERSION']))
@@ -64,12 +57,10 @@ if not '-e' in sys.argv:
     download('https://ox.gluu.org/maven/org/gluu/scim-server/{0}{1}/scim-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'scim/scim.war')
     download('https://ox.gluu.org/maven/org/gluu/fido2-server/{0}{1}/fido2-server-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'fido2/fido2.war')
     download('https://raw.githubusercontent.com/GluuFederation/oxd/master/debian/oxd-server', 'oxd-server/oxd-server')
-    download('https://raw.githubusercontent.com/GluuFederation/oxTrust/master/configuration/src/main/resources/META-INF/shibboleth3/idp/saml-nameid.properties.vm', 'upgrades/saml-nameid.properties.vm')
+    download('https://github.com/GluuFederation/community-edition-setup/archive/{}.zip'.format(app_versions['SETUP_BRANCH']), 'setup/community-edition-setup.zip')
 
     package_oxd()
 
-download('https://ox.gluu.org/maven/org/gluu/oxauth-rp/{0}{1}/oxauth-rp-{0}{1}.war'.format(app_versions['OX_VERSION'], app_versions['OX_GITVERISON']), 'oxauth-rp/oxauth-rp.war')
-download('https://github.com/GluuFederation/community-edition-setup/archive/{}.zip'.format(app_versions['SETUP_BRANCH']), 'setup/community-edition-setup.zip')
 
 # we need some files form community-edition-setup.zip
 ces = os.path.join(app_dir, 'setup/community-edition-setup.zip')
@@ -86,7 +77,5 @@ def extract_from_ces(src, target_fn):
     with open(dst, 'wb') as w:
         w.write(content)
 
-extract_from_ces('static/system/initd/passport', 'passport/passport')
-extract_from_ces('static/radius/etc/init.d/gluu-radius', 'radius/gluu-radius')
 extract_from_ces('templates/jetty.conf.tmpfiles.d', 'jetty.conf')
 os.chmod('apps/facter/facter', 33261)

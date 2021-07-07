@@ -95,3 +95,17 @@ $ sudo gluu-server.setup
 ```
 
 Setup will continue as usual. After setup completed you will be prompted to run post setup script which ensures snap plugins attached and modifies `/etc/limits.conf` for needs of gluu server.
+
+# Upgrade
+If you have previous installation of gluu snap package, just install latest version by
+
+```
+sudo snap install gluu-server_<version>_amd64.snap
+```
+
+and run upgrade script
+
+```
+sudo gluu-server.upgrade
+```
+
